@@ -181,7 +181,7 @@ img
 
 
     
-![png](https://github.com/girijeshcse/scribble-code/blob/master/images/output_14_0.png)
+![png](/images/output_14_0.png)
     
 
 
