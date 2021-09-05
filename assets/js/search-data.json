@@ -2,10 +2,10 @@
   
     
         "post0": {
-            "title": "Deep Learning With Pytorch Ch01",
-            "content": "Chapter 01 summary . How deep learning has changed the way we look ! . This can be easily understood by this picture . We need a way to ingest whatever data we have at hand. | We somehow need to define the deep learning machine. | We must have an automated way, training, to obtain useful representations and make the machine produce desired outputs. | .",
-            "url": "https://girijeshcse.github.io/scribble-code/2021/09/05/Deep-Learning-with-PyTorch-ch01.html",
-            "relUrl": "/2021/09/05/Deep-Learning-with-PyTorch-ch01.html",
+            "title": "Chapter 01 summary",
+            "content": "# . How deep learning has changed the way we look ! . This can be easily understood by this picture . . We need a way to ingest whatever data we have at hand. | We somehow need to define the deep learning machine. | We must have an automated way, training, to obtain useful representations and make the machine produce desired outputs. | .",
+            "url": "https://girijeshcse.github.io/scribble-code/markdown/2021/09/05/Deep-Learning-with-PyTorch-ch01.html",
+            "relUrl": "/markdown/2021/09/05/Deep-Learning-with-PyTorch-ch01.html",
             "date": " • Sep 5, 2021"
         }
         
