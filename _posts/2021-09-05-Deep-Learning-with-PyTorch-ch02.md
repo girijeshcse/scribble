@@ -160,13 +160,13 @@ preprocess = transforms.Compose([
             std=[0.229, 0.224, 0.225]
         )])
 ```
+In this case, we defined a preprocess function that will scale the input image to 256 × 256, crop the image to 224 × 224 around the center, transform it to a tensor (a PyTorch multidimensional array: in this case, a 3D array with color, height, and width), and normalize its RGB (red, green, blue) components so that they have
+defined means and standard deviations. These need to match what was presented to
+the network during training, if we want the network to produce meaningful answers
 
 
-```python
 
-```
-
-
+Let's open a image and visualize it.
 ```python
 from PIL import Image
 img = Image.open("../data/p1ch2/bobby.jpg")
@@ -185,7 +185,7 @@ img
     
 
 
-
+And do the required preprocessing so that we can use it for prediction from our loaded pretrained model.
 
 ```python
 img_t = preprocess(img)
@@ -197,6 +197,7 @@ import torch
 batch_t = torch.unsqueeze(img_t, 0)
 ```
 
+The process of running a trained model on new data is called inference in deep learning circles. In order to do inference, we need to put the network in eval mode:
 
 ```python
 resnet.eval()
@@ -209,49 +210,29 @@ resnet.eval()
       (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
       (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU(inplace=True)
-      (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
-      (layer1): Sequential(
-        (0): Bottleneck(
-          (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
-          (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-          (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
-          (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-          (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
-          (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-          (relu): ReLU(inplace=True)
-          (downsample): Sequential(
-            (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
-            (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-          )
-        )
-  
-        )
-      )
+
       (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
       (fc): Linear(in_features=2048, out_features=1000, bias=True)
     )
 
 
-
+If we forget to do that, some pretrained models, like batch normalization and dropout, will not produce meaningful answers, just because of the way they work internally. Now that eval has been set, we’re ready for inference:
 
 ```python
 out = resnet(batch_t)
 out
 ```
 
-    C:\Users\hp\AppData\Roaming\Python\Python37\site-packages\torch\nn\functional.py:718: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at  ..\c10/core/TensorImpl.h:1156.)
+
       return torch.max_pool2d(input, kernel_size, stride, padding, dilation, ceil_mode)
-    
-
-
-
-
     tensor([[-3.4997e+00, -1.6490e+00, -2.4391e+00, -3.2243e+00, -3.2465e+00,
              -........  4.4534e+00]],
            grad_fn=<AddmmBackward>)
 
 
+We now need to find out the label of the class that received the highest score. This will tell us what the model saw in the image. If the label matches how a human would describe the image, that’s great! It means everything is working. If not, then either something went wrong during training, or the image is so different from what the model expects that the model can’t process it properly, or there’s some other similar issue.
 
+Let’s load the file containing the 1,000 labels for the ImageNet dataset classes:
 
 ```python
 with open('../data/p1ch2/imagenet_classes.txt') as f:
@@ -292,8 +273,6 @@ _, indices = torch.sort(out, descending=True)
      ('tennis ball', 0.10991999506950378)]
 
 
+We see that the first four are dogs (redbone is a breed; who knew?), after which things start to get funny. The fifth answer, “tennis ball,” is probably because there are enough pictures of tennis balls with dogs nearby that the model is essentially saying, “There’s a 0.1% chance that I’ve completely misunderstood what a tennis ball is.” This is a great example of the fundamental differences in how humans and neural networks view the world, as well as how easy it is for strange, subtle biases to sneak into our data.
 
 
-```python
-
-```
