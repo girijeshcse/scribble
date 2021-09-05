@@ -16,26 +16,12 @@ This can be easily understood by this picture
 - We must have an automated way, training, to obtain useful representations and make the machine produce desired outputs.
 
 ## Why PyTorch
-- PyTorch gives us a data type, the Tensor, to hold numbers, vectors, matrices,
-or arrays in general. In addition, it provides functions for operating on them.
-- It provides accelerated computation using graphical processing units (GPUs),
-often yielding speedups in the range of 50x over doing the same calculation on a
-CPU.
-- PyTorch provides facilities that support numerical optimization on
-generic mathematical expressions, which deep learning uses for training.
-- One of the motivations
-for this capability is to provide a reliable strategy for deploying models in production.
-- Moving
-computations from the CPU to the GPU in PyTorch doesn’t require more than an
-additional function call or two. The second core thing that PyTorch provides is the
-ability of tensors to keep track of the operations performed on them and to analytically
-compute derivatives of an output of a computation with respect to any of its
-inputs. This is used for numerical optimization, and it is provided natively by tensors
-by virtue of dispatching through PyTorch’s autograd engine under the hood.
-- The core PyTorch modules for building neural networks are located in torch.nn,
-which provides common neural network layers and other architectural components.
-Fully connected layers, convolutional layers, activation functions, and loss functions
-can all be found here
+- PyTorch gives us a data type, the Tensor, to hold numbers, vectors, matrices, or arrays in general. In addition, it provides functions for operating on them.
+- It provides accelerated computation using graphical processing units (GPUs), often yielding speedups in the range of 50x over doing the same calculation on a CPU.
+- PyTorch provides facilities that support numerical optimization on generic mathematical expressions, which deep learning uses for training.
+- One of the motivations for this capability is to provide a reliable strategy for deploying models in production.
+- Moving computations from the CPU to the GPU in PyTorch doesn’t require more than an additional function call or two. The second core thing that PyTorch provides is the ability of tensors to keep track of the operations performed on them and to analytically compute derivatives of an output of a computation with respect to any of its inputs. This is used for numerical optimization, and it is provided natively by tensors by virtue of dispatching through PyTorch’s autograd engine under the hood.
+- The core PyTorch modules for building neural networks are located in torch.nn, which provides common neural network layers and other architectural components. Fully connected layers, convolutional layers, activation functions, and loss functions can all be found here.
 
   
 ### A camparision to TensorFlow
