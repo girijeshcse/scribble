@@ -36,7 +36,7 @@ as researchers and graduates train students and move to industry.
 - we will need multiple processes to load our data, in order to assemble them into batches: tensors that encompass several samples. This is rather elaborate; but as it is also relatively generic, PyTorch readily provides all that magic in the DataLoader class. Its instances can spawn child processes to load data from a dataset in the background so that it’s ready and waiting for the training loop as soon as the loop can use it.
 - At each step in the training loop, we evaluate our model on the samples we got from the data loader. We then compare the outputs of our model to the desired  output (the targets) using some criterion or loss function.
   
-![ ](../images/dl2.JPG "PyTotch deep learning stages")
+![ ]({{ site.baseurl }}/images/dl2.JPG "PyTotch deep learning stages")
 
 - The training loop might be the most unexciting yet most time-consuming part of a deep learning project. At the end of it, we are rewarded with a model whose parameters have been optimized on our task: the trained model depicted to the right of the training loop in the figure.
 - PyTorch defaults to an immediate execution model (eager mode). Whenever an instruction involving PyTorch is executed by the Python interpreter, the corresponding operation is immediately carried out by the underlying C++ or CUDA implementation.

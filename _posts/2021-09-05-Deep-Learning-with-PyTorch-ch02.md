@@ -13,7 +13,7 @@ We will explore three popular pretrained models: a model that can
 label an image according to its content, another that can fabricate a new image from a real image, and a model that can describe the content of an image using proper English sentences.
 
 The scope of this chapter is only how to run a pretrained model using PyTorch is a useful skill—full stop. Basically We are going to take our own images and feed them into our pretrained model, as described in figure below. This will result in a list of predicted labels for that image, which we can then examine to see what the model thinks our image is. Some images will have predictions that are accurate, and others will not!
-![Pretrained ](/images/dl3.JPG)
+![Pretrained ]({{ site.baseurl }}/images/dl3.JPG)
 
 
 ## Obtaining a pretrained network for image recognition
@@ -181,7 +181,7 @@ img
 
 
     
-![png](/images/output_14_0.png)
+![]({{ site.baseurl }}/images/output_14_0.png)
     
 
 
