@@ -1,1 +1,1 @@
-Sitemap: https://girijeshcse.github.io/scribble-code/sitemap.xml
+Sitemap: https://girijeshcse.github.io/scribble/sitemap.xml
