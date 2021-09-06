@@ -9,7 +9,7 @@ title: Chapter 01 summary
 ## How deep learning has changed the way we look !
 This can be easily understood by this picture
 
-![](../images/dl1.JPG "Deep Learning 2 Scenario")
+![]({{ site.baseurl }}/images/dl1.JPG "Two approaches with and without Deep Learning")
 
 - We need a way to ingest whatever data we have at hand.
 - We somehow need to define the deep learning machine.
