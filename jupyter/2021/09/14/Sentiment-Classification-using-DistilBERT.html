@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Sentiment Classification Using DistilBERT | Girijesh’s scribble and code</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Sentiment Classification Using DistilBERT" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A place to explore and rewrite my technical voyage." />
+<meta property="og:description" content="A place to explore and rewrite my technical voyage." />
+<link rel="canonical" href="https://girijeshcse.github.io/scribble/jupyter/2021/09/14/Sentiment-Classification-using-DistilBERT.html" />
+<meta property="og:url" content="https://girijeshcse.github.io/scribble/jupyter/2021/09/14/Sentiment-Classification-using-DistilBERT.html" />
+<meta property="og:site_name" content="Girijesh’s scribble and code" />
+<meta property="og:image" content="https://girijeshcse.github.io/scribble/images/chart-preview.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-09-14T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2021-09-14T00:00:00-05:00","url":"https://girijeshcse.github.io/scribble/jupyter/2021/09/14/Sentiment-Classification-using-DistilBERT.html","@type":"BlogPosting","image":"https://girijeshcse.github.io/scribble/images/chart-preview.png","headline":"Sentiment Classification Using DistilBERT","dateModified":"2021-09-14T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://girijeshcse.github.io/scribble/jupyter/2021/09/14/Sentiment-Classification-using-DistilBERT.html"},"description":"A place to explore and rewrite my technical voyage.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/scribble/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://girijeshcse.github.io/scribble/feed.xml" title="Girijesh's scribble and code" /><link rel="shortcut icon" type="image/x-icon" href="/scribble/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/scribble/">Girijesh&#39;s scribble and code</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/scribble/about/">About Me</a><a class="page-link" href="/scribble/search/">Search</a><a class="page-link" href="/scribble/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Sentiment Classification Using DistilBERT</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-09-14T00:00:00-05:00" itemprop="datePublished">
+        Sep 14, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      11 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/scribble/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/girijeshcse/scribble/tree/master/_notebooks/2021-09-14-Sentiment-Classification-using-DistilBERT.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/scribble/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/girijeshcse/scribble/master?filepath=_notebooks%2F2021-09-14-Sentiment-Classification-using-DistilBERT.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/girijeshcse/scribble/blob/master/_notebooks/2021-09-14-Sentiment-Classification-using-DistilBERT.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#What-is-DistilBERT">What is DistilBERT </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Why-DistilBERT">Why DistilBERT </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Additional-Reading">Additional Reading </a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#What-is-ktrain">What is ktrain </a></li>
+<li class="toc-entry toc-h1"><a href="#Notebook-Setup">Notebook Setup </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-09-14-Sentiment-Classification-using-DistilBERT.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will use IMDB Movie Reviews Dataset</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="What-is-DistilBERT">
+<a class="anchor" href="#What-is-DistilBERT" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is <code>DistilBERT</code><a class="anchor-link" href="#What-is-DistilBERT"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>BERT is designed to pretrain deep bidirectional representations from
+unlabeled text by jointly conditioning on both
+left and right context in all layers. As a result, the pre-trained BERT model can be finetuned with just one additional output layer
+to create state-of-the-art models for a wide
+range of tasks, such as question answering and
+language inference, without substantial taskspecific architecture modifications.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>DistilBERT is a small, fast, cheap and light Transformer model trained by distilling Bert base. It has 40% less parameters than bert-base-uncased, runs 60% faster while preserving over 95% of Bert’s performances as measured on the GLUE language understanding benchmark.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="https://miro.medium.com/max/2000/1*IFVX74cEe8U5D1GveL1uZA.png" alt="alt text"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Why-DistilBERT">
+<a class="anchor" href="#Why-DistilBERT" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why <code>DistilBERT</code><a class="anchor-link" href="#Why-DistilBERT"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Accurate as much as Original BERT Model</li>
+<li>60% faster </li>
+<li>40% less parameters</li>
+<li>It can run on CPU</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Additional-Reading">
+<a class="anchor" href="#Additional-Reading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Additional Reading<a class="anchor-link" href="#Additional-Reading"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter</p>
+<p><a href="https://arxiv.org/abs/1910.01108">https://arxiv.org/abs/1910.01108</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Video Lecture: BERT NLP Tutorial 1- Introduction | BERT Machine Learning | KGP Talkie</p>
+<p><a href="https://www.youtube.com/watch?v=h_U27jBNYI4">https://www.youtube.com/watch?v=h_U27jBNYI4</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Ref BERT:  <strong>Pre-training of Deep Bidirectional Transformers for
+Language Understanding</strong></p>
+<p><a href="https://arxiv.org/abs/1810.04805">https://arxiv.org/abs/1810.04805</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Understanding searches better than ever before:</p>
+<p><a href="https://www.blog.google/products/search/search-language-understanding-bert/">https://www.blog.google/products/search/search-language-understanding-bert/</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Good Resource to Read More About the BERT:</p>
+<p><a href="http://jalammar.github.io/illustrated-bert/">http://jalammar.github.io/illustrated-bert/</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Visual Guide to Using BERT:</p>
+<p><a href="http://jalammar.github.io/a-visual-guide-to-using-bert-for-the-first-time/">http://jalammar.github.io/a-visual-guide-to-using-bert-for-the-first-time/</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="What-is-ktrain">
+<a class="anchor" href="#What-is-ktrain" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is <code>ktrain</code><a class="anchor-link" href="#What-is-ktrain"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>ktrain is a library to help build, train, debug, and deploy neural networks in the deep learning software framework, Keras.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>ktrain uses tf.keras in TensorFlow instead of standalone Keras.) Inspired by the fastai library, with only a few lines of code, ktrain allows you to easily:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>estimate an optimal learning rate for your model given your data using a learning rate finder</li>
+<li>employ learning rate schedules such as the triangular learning rate policy, 1cycle policy, and SGDR to more effectively train your model</li>
+<li>employ fast and easy-to-use pre-canned models for both text classification (e.g., NBSVM, fastText, GRU with pretrained word embeddings) and image classification (e.g., ResNet, Wide Residual Networks, Inception)</li>
+<li>
+<p>load and preprocess text and image data from a variety of formats</p>
+</li>
+<li>
+<p>inspect data points that were misclassified to help improve your model</p>
+</li>
+<li>leverage a simple prediction API for saving and deploying both models and data-preprocessing steps to make predictions on new raw data</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>ktrain GitHub: <a href="https://github.com/amaiya/ktrain">https://github.com/amaiya/ktrain</a></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Notebook-Setup">
+<a class="anchor" href="#Notebook-Setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notebook Setup<a class="anchor-link" href="#Notebook-Setup"> </a>
+</h1>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install ktrain
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Collecting ktrain
+  Downloading https://files.pythonhosted.org/packages/12/11/49bdde1b08a210365c04367e84d3fb1489db6f4b262358a10719962891a2/ktrain-0.16.3.tar.gz (25.2MB)
+     |████████████████████████████████| 25.2MB 117kB/s 
+Collecting tensorflow==2.1.0
+  Downloading https://files.pythonhosted.org/packages/85/d4/c0cd1057b331bc38b65478302114194bd8e1b9c2bbc06e300935c0e93d90/tensorflow-2.1.0-cp36-cp36m-manylinux2010_x86_64.whl (421.8MB)
+     |████████████████████████████████| 421.8MB 26kB/s 
+Collecting scikit-learn==0.21.3
+  Downloading https://files.pythonhosted.org/packages/a0/c5/d2238762d780dde84a20b8c761f563fe882b88c5a5fb03c056547c442a19/scikit_learn-0.21.3-cp36-cp36m-manylinux1_x86_64.whl (6.7MB)
+     |████████████████████████████████| 6.7MB 30.3MB/s 
+Requirement already satisfied: matplotlib&gt;=3.0.0 in /usr/local/lib/python3.6/dist-packages (from ktrain) (3.2.1)
+Requirement already satisfied: pandas&gt;=1.0.1 in /usr/local/lib/python3.6/dist-packages (from ktrain) (1.0.4)
+Requirement already satisfied: fastprogress&gt;=0.1.21 in /usr/local/lib/python3.6/dist-packages (from ktrain) (0.2.3)
+Collecting keras_bert&gt;=0.81.0
+  Downloading https://files.pythonhosted.org/packages/ec/08/bffa03eb899b20bfb60553e4503f8bac00b83d415bc6ead08f6b447e8aaa/keras-bert-0.84.0.tar.gz
+Requirement already satisfied: requests in /usr/local/lib/python3.6/dist-packages (from ktrain) (2.23.0)
+Requirement already satisfied: joblib in /usr/local/lib/python3.6/dist-packages (from ktrain) (0.15.1)
+Collecting langdetect
+  Downloading https://files.pythonhosted.org/packages/56/a3/8407c1e62d5980188b4acc45ef3d94b933d14a2ebc9ef3505f22cf772570/langdetect-1.0.8.tar.gz (981kB)
+     |████████████████████████████████| 983kB 33.8MB/s 
+Requirement already satisfied: jieba in /usr/local/lib/python3.6/dist-packages (from ktrain) (0.42.1)
+Collecting cchardet==2.1.5
+  Downloading https://files.pythonhosted.org/packages/fa/4e/847feebfc3e71c773b23ee06c74687b8c50a5a6d6aaff452a0a4f4eb9a32/cchardet-2.1.5-cp36-cp36m-manylinux1_x86_64.whl (241kB)
+     |████████████████████████████████| 245kB 37.8MB/s 
+Requirement already satisfied: networkx&gt;=2.3 in /usr/local/lib/python3.6/dist-packages (from ktrain) (2.4)
+Requirement already satisfied: bokeh in /usr/local/lib/python3.6/dist-packages (from ktrain) (1.4.0)
+Collecting seqeval
+  Downloading https://files.pythonhosted.org/packages/34/91/068aca8d60ce56dd9ba4506850e876aba5e66a6f2f29aa223224b50df0de/seqeval-0.0.12.tar.gz
+Requirement already satisfied: packaging in /usr/local/lib/python3.6/dist-packages (from ktrain) (20.4)
+Requirement already satisfied: tensorflow_datasets in /usr/local/lib/python3.6/dist-packages (from ktrain) (2.1.0)
+Collecting transformers&gt;=2.11.0
+  Downloading https://files.pythonhosted.org/packages/48/35/ad2c5b1b8f99feaaf9d7cdadaeef261f098c6e1a6a2935d4d07662a6b780/transformers-2.11.0-py3-none-any.whl (674kB)
+     |████████████████████████████████| 675kB 36.0MB/s 
+Requirement already satisfied: ipython in /usr/local/lib/python3.6/dist-packages (from ktrain) (5.5.0)
+Collecting syntok
+  Downloading https://files.pythonhosted.org/packages/8c/76/a49e73a04b3e3a14ce232e8e28a1587f8108baa665644fe8c40e307e792e/syntok-1.3.1.tar.gz
+Collecting whoosh
+  Downloading https://files.pythonhosted.org/packages/ba/19/24d0f1f454a2c1eb689ca28d2f178db81e5024f42d82729a4ff6771155cf/Whoosh-2.7.4-py2.py3-none-any.whl (468kB)
+     |████████████████████████████████| 471kB 36.7MB/s 
+Requirement already satisfied: six&gt;=1.12.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.12.0)
+Requirement already satisfied: numpy&lt;2.0,&gt;=1.16.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.18.5)
+Collecting gast==0.2.2
+  Downloading https://files.pythonhosted.org/packages/4e/35/11749bf99b2d4e3cceb4d55ca22590b0d7c2c62b9de38ac4a4a7f4687421/gast-0.2.2.tar.gz
+Requirement already satisfied: keras-preprocessing&gt;=1.1.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.1.2)
+Requirement already satisfied: protobuf&gt;=3.8.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (3.10.0)
+Requirement already satisfied: wrapt&gt;=1.11.1 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.12.1)
+Requirement already satisfied: wheel&gt;=0.26; python_version &gt;= "3" in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (0.34.2)
+Collecting tensorboard&lt;2.2.0,&gt;=2.1.0
+  Downloading https://files.pythonhosted.org/packages/d9/41/bbf49b61370e4f4d245d4c6051dfb6db80cec672605c91b1652ac8cc3d38/tensorboard-2.1.1-py3-none-any.whl (3.8MB)
+     |████████████████████████████████| 3.9MB 36.4MB/s 
+Requirement already satisfied: termcolor&gt;=1.1.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.1.0)
+Requirement already satisfied: astor&gt;=0.6.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (0.8.1)
+Requirement already satisfied: scipy==1.4.1; python_version &gt;= "3" in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.4.1)
+Collecting tensorflow-estimator&lt;2.2.0,&gt;=2.1.0rc0
+  Downloading https://files.pythonhosted.org/packages/18/90/b77c328a1304437ab1310b463e533fa7689f4bfc41549593056d812fab8e/tensorflow_estimator-2.1.0-py2.py3-none-any.whl (448kB)
+     |████████████████████████████████| 450kB 37.8MB/s 
+Requirement already satisfied: grpcio&gt;=1.8.6 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.29.0)
+Requirement already satisfied: google-pasta&gt;=0.1.6 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (0.2.0)
+Requirement already satisfied: opt-einsum&gt;=2.3.2 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (3.2.1)
+Requirement already satisfied: absl-py&gt;=0.7.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (0.9.0)
+Requirement already satisfied: keras-applications&gt;=1.0.8 in /usr/local/lib/python3.6/dist-packages (from tensorflow==2.1.0-&gt;ktrain) (1.0.8)
+Requirement already satisfied: python-dateutil&gt;=2.1 in /usr/local/lib/python3.6/dist-packages (from matplotlib&gt;=3.0.0-&gt;ktrain) (2.8.1)
+Requirement already satisfied: cycler&gt;=0.10 in /usr/local/lib/python3.6/dist-packages (from matplotlib&gt;=3.0.0-&gt;ktrain) (0.10.0)
+Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,&gt;=2.0.1 in /usr/local/lib/python3.6/dist-packages (from matplotlib&gt;=3.0.0-&gt;ktrain) (2.4.7)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in /usr/local/lib/python3.6/dist-packages (from matplotlib&gt;=3.0.0-&gt;ktrain) (1.2.0)
+Requirement already satisfied: pytz&gt;=2017.2 in /usr/local/lib/python3.6/dist-packages (from pandas&gt;=1.0.1-&gt;ktrain) (2018.9)
+Requirement already satisfied: Keras in /usr/local/lib/python3.6/dist-packages (from keras_bert&gt;=0.81.0-&gt;ktrain) (2.3.1)
+Collecting keras-transformer&gt;=0.37.0
+  Downloading https://files.pythonhosted.org/packages/8a/2b/c465241bd3f37a3699246827ff4ad7974c6edeaa69cf9cdcff2fd1d3ba46/keras-transformer-0.37.0.tar.gz
+Requirement already satisfied: urllib3!=1.25.0,!=1.25.1,&lt;1.26,&gt;=1.21.1 in /usr/local/lib/python3.6/dist-packages (from requests-&gt;ktrain) (1.24.3)
+Requirement already satisfied: idna&lt;3,&gt;=2.5 in /usr/local/lib/python3.6/dist-packages (from requests-&gt;ktrain) (2.9)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.6/dist-packages (from requests-&gt;ktrain) (2020.4.5.2)
+Requirement already satisfied: chardet&lt;4,&gt;=3.0.2 in /usr/local/lib/python3.6/dist-packages (from requests-&gt;ktrain) (3.0.4)
+Requirement already satisfied: decorator&gt;=4.3.0 in /usr/local/lib/python3.6/dist-packages (from networkx&gt;=2.3-&gt;ktrain) (4.4.2)
+Requirement already satisfied: Jinja2&gt;=2.7 in /usr/local/lib/python3.6/dist-packages (from bokeh-&gt;ktrain) (2.11.2)
+Requirement already satisfied: PyYAML&gt;=3.10 in /usr/local/lib/python3.6/dist-packages (from bokeh-&gt;ktrain) (3.13)
+Requirement already satisfied: pillow&gt;=4.0 in /usr/local/lib/python3.6/dist-packages (from bokeh-&gt;ktrain) (7.0.0)
+Requirement already satisfied: tornado&gt;=4.3 in /usr/local/lib/python3.6/dist-packages (from bokeh-&gt;ktrain) (4.5.3)
+Requirement already satisfied: dill in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (0.3.1.1)
+Requirement already satisfied: future in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (0.16.0)
+Requirement already satisfied: attrs&gt;=18.1.0 in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (19.3.0)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (4.41.1)
+Requirement already satisfied: promise in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (2.3)
+Requirement already satisfied: tensorflow-metadata in /usr/local/lib/python3.6/dist-packages (from tensorflow_datasets-&gt;ktrain) (0.22.2)
+Collecting tokenizers==0.7.0
+  Downloading https://files.pythonhosted.org/packages/14/e5/a26eb4716523808bb0a799fcfdceb6ebf77a18169d9591b2f46a9adb87d9/tokenizers-0.7.0-cp36-cp36m-manylinux1_x86_64.whl (3.8MB)
+     |████████████████████████████████| 3.8MB 41.0MB/s 
+Collecting sentencepiece
+  Downloading https://files.pythonhosted.org/packages/d4/a4/d0a884c4300004a78cca907a6ff9a5e9fe4f090f5d95ab341c53d28cbc58/sentencepiece-0.1.91-cp36-cp36m-manylinux1_x86_64.whl (1.1MB)
+     |████████████████████████████████| 1.1MB 33.4MB/s 
+Requirement already satisfied: dataclasses; python_version &lt; "3.7" in /usr/local/lib/python3.6/dist-packages (from transformers&gt;=2.11.0-&gt;ktrain) (0.7)
+Requirement already satisfied: filelock in /usr/local/lib/python3.6/dist-packages (from transformers&gt;=2.11.0-&gt;ktrain) (3.0.12)
+Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.6/dist-packages (from transformers&gt;=2.11.0-&gt;ktrain) (2019.12.20)
+Collecting sacremoses
+  Downloading https://files.pythonhosted.org/packages/7d/34/09d19aff26edcc8eb2a01bed8e98f13a1537005d31e95233fd48216eed10/sacremoses-0.0.43.tar.gz (883kB)
+     |████████████████████████████████| 890kB 35.7MB/s 
+Requirement already satisfied: pexpect; sys_platform != "win32" in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (4.8.0)
+Requirement already satisfied: setuptools&gt;=18.5 in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (47.1.1)
+Requirement already satisfied: simplegeneric&gt;0.8 in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (0.8.1)
+Requirement already satisfied: prompt-toolkit&lt;2.0.0,&gt;=1.0.4 in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (1.0.18)
+Requirement already satisfied: pickleshare in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (0.7.5)
+Requirement already satisfied: traitlets&gt;=4.2 in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (4.3.3)
+Requirement already satisfied: pygments in /usr/local/lib/python3.6/dist-packages (from ipython-&gt;ktrain) (2.1.3)
+Requirement already satisfied: google-auth&lt;2,&gt;=1.6.3 in /usr/local/lib/python3.6/dist-packages (from tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (1.17.2)
+Requirement already satisfied: markdown&gt;=2.6.8 in /usr/local/lib/python3.6/dist-packages (from tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (3.2.2)
+Requirement already satisfied: werkzeug&gt;=0.11.15 in /usr/local/lib/python3.6/dist-packages (from tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (1.0.1)
+Requirement already satisfied: google-auth-oauthlib&lt;0.5,&gt;=0.4.1 in /usr/local/lib/python3.6/dist-packages (from tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (0.4.1)
+Requirement already satisfied: h5py in /usr/local/lib/python3.6/dist-packages (from keras-applications&gt;=1.0.8-&gt;tensorflow==2.1.0-&gt;ktrain) (2.10.0)
+Collecting keras-pos-embd&gt;=0.11.0
+  Downloading https://files.pythonhosted.org/packages/09/70/b63ed8fc660da2bb6ae29b9895401c628da5740c048c190b5d7107cadd02/keras-pos-embd-0.11.0.tar.gz
+Collecting keras-multi-head&gt;=0.27.0
+  Downloading https://files.pythonhosted.org/packages/e6/32/45adf2549450aca7867deccfa04af80a0ab1ca139af44b16bc669e0e09cd/keras-multi-head-0.27.0.tar.gz
+Collecting keras-layer-normalization&gt;=0.14.0
+  Downloading https://files.pythonhosted.org/packages/a4/0e/d1078df0494bac9ce1a67954e5380b6e7569668f0f3b50a9531c62c1fc4a/keras-layer-normalization-0.14.0.tar.gz
+Collecting keras-position-wise-feed-forward&gt;=0.6.0
+  Downloading https://files.pythonhosted.org/packages/e3/59/f0faa1037c033059e7e9e7758e6c23b4d1c0772cd48de14c4b6fd4033ad5/keras-position-wise-feed-forward-0.6.0.tar.gz
+Collecting keras-embed-sim&gt;=0.7.0
+  Downloading https://files.pythonhosted.org/packages/bc/20/735fd53f6896e2af63af47e212601c1b8a7a80d00b6126c388c9d1233892/keras-embed-sim-0.7.0.tar.gz
+Requirement already satisfied: MarkupSafe&gt;=0.23 in /usr/local/lib/python3.6/dist-packages (from Jinja2&gt;=2.7-&gt;bokeh-&gt;ktrain) (1.1.1)
+Requirement already satisfied: googleapis-common-protos in /usr/local/lib/python3.6/dist-packages (from tensorflow-metadata-&gt;tensorflow_datasets-&gt;ktrain) (1.52.0)
+Requirement already satisfied: click in /usr/local/lib/python3.6/dist-packages (from sacremoses-&gt;transformers&gt;=2.11.0-&gt;ktrain) (7.1.2)
+Requirement already satisfied: ptyprocess&gt;=0.5 in /usr/local/lib/python3.6/dist-packages (from pexpect; sys_platform != "win32"-&gt;ipython-&gt;ktrain) (0.6.0)
+Requirement already satisfied: wcwidth in /usr/local/lib/python3.6/dist-packages (from prompt-toolkit&lt;2.0.0,&gt;=1.0.4-&gt;ipython-&gt;ktrain) (0.2.4)
+Requirement already satisfied: ipython-genutils in /usr/local/lib/python3.6/dist-packages (from traitlets&gt;=4.2-&gt;ipython-&gt;ktrain) (0.2.0)
+Requirement already satisfied: cachetools&lt;5.0,&gt;=2.0.0 in /usr/local/lib/python3.6/dist-packages (from google-auth&lt;2,&gt;=1.6.3-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (4.1.0)
+Requirement already satisfied: pyasn1-modules&gt;=0.2.1 in /usr/local/lib/python3.6/dist-packages (from google-auth&lt;2,&gt;=1.6.3-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (0.2.8)
+Requirement already satisfied: rsa&lt;5,&gt;=3.1.4; python_version &gt;= "3" in /usr/local/lib/python3.6/dist-packages (from google-auth&lt;2,&gt;=1.6.3-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (4.6)
+Requirement already satisfied: importlib-metadata; python_version &lt; "3.8" in /usr/local/lib/python3.6/dist-packages (from markdown&gt;=2.6.8-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (1.6.1)
+Requirement already satisfied: requests-oauthlib&gt;=0.7.0 in /usr/local/lib/python3.6/dist-packages (from google-auth-oauthlib&lt;0.5,&gt;=0.4.1-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (1.3.0)
+Collecting keras-self-attention==0.46.0
+  Downloading https://files.pythonhosted.org/packages/15/6b/c804924a056955fa1f3ff767945187103cfc851ba9bd0fc5a6c6bc18e2eb/keras-self-attention-0.46.0.tar.gz
+Requirement already satisfied: pyasn1&lt;0.5.0,&gt;=0.4.6 in /usr/local/lib/python3.6/dist-packages (from pyasn1-modules&gt;=0.2.1-&gt;google-auth&lt;2,&gt;=1.6.3-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (0.4.8)
+Requirement already satisfied: zipp&gt;=0.5 in /usr/local/lib/python3.6/dist-packages (from importlib-metadata; python_version &lt; "3.8"-&gt;markdown&gt;=2.6.8-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (3.1.0)
+Requirement already satisfied: oauthlib&gt;=3.0.0 in /usr/local/lib/python3.6/dist-packages (from requests-oauthlib&gt;=0.7.0-&gt;google-auth-oauthlib&lt;0.5,&gt;=0.4.1-&gt;tensorboard&lt;2.2.0,&gt;=2.1.0-&gt;tensorflow==2.1.0-&gt;ktrain) (3.1.0)
+Building wheels for collected packages: ktrain, keras-bert, langdetect, seqeval, syntok, gast, keras-transformer, sacremoses, keras-pos-embd, keras-multi-head, keras-layer-normalization, keras-position-wise-feed-forward, keras-embed-sim, keras-self-attention
+  Building wheel for ktrain (setup.py) ... done
+  Created wheel for ktrain: filename=ktrain-0.16.3-cp36-none-any.whl size=25246180 sha256=87647334c3fae83c22b2d9ca6302341ac072868f7e98c95bfee703a1ed816de1
+  Stored in directory: /root/.cache/pip/wheels/2b/24/21/a52cc4dcb0b438cf570e9d44c017761d41335d9af4c189ebad
+  Building wheel for keras-bert (setup.py) ... done
+  Created wheel for keras-bert: filename=keras_bert-0.84.0-cp36-none-any.whl size=36139 sha256=486e8a0911c77558ef0a2948d846bd0a7c8caa512e1737890438ff1428fea64f
+  Stored in directory: /root/.cache/pip/wheels/1f/59/04/12e95257aebfd27f7edaaf65ab7dd57b5f6cadfb183f1a4ccd
+  Building wheel for langdetect (setup.py) ... done
+  Created wheel for langdetect: filename=langdetect-1.0.8-cp36-none-any.whl size=993193 sha256=b1438f4300112c372f0b1f25fba841d7bb691cc0fe4ffccad34fabbaa094ac4e
+  Stored in directory: /root/.cache/pip/wheels/8d/b3/aa/6d99de9f3841d7d3d40a60ea06e6d669e8e5012e6c8b947a57
+  Building wheel for seqeval (setup.py) ... done
+  Created wheel for seqeval: filename=seqeval-0.0.12-cp36-none-any.whl size=7424 sha256=0011a22a9cb81570958e02e8c75bb7921a1245744cd9f7c9466c0066028af235
+  Stored in directory: /root/.cache/pip/wheels/4f/32/0a/df3b340a82583566975377d65e724895b3fad101a3fb729f68
+  Building wheel for syntok (setup.py) ... done
+  Created wheel for syntok: filename=syntok-1.3.1-cp36-none-any.whl size=20918 sha256=c9b802faee34c0958abcab53266c8d3447880710ff8629ba2edc78451f44e8a1
+  Stored in directory: /root/.cache/pip/wheels/51/c6/a4/be1920586c49469846bcd2888200bdecfe109ec421dab9be2d
+  Building wheel for gast (setup.py) ... done
+  Created wheel for gast: filename=gast-0.2.2-cp36-none-any.whl size=7540 sha256=b359676afad7b05ddd3d256f0f3a3c7fa980125834e7ed1ab3970483812faff5
+  Stored in directory: /root/.cache/pip/wheels/5c/2e/7e/a1d4d4fcebe6c381f378ce7743a3ced3699feb89bcfbdadadd
+  Building wheel for keras-transformer (setup.py) ... done
+  Created wheel for keras-transformer: filename=keras_transformer-0.37.0-cp36-none-any.whl size=12942 sha256=00147eca000057fd9c95bc770178666049d34bc10877dcc7327d53cb3eeeee41
+  Stored in directory: /root/.cache/pip/wheels/2a/f9/31/2a3289e948852ce0dd3fcd94c34bbc7eb9628842cb7110a87b
+  Building wheel for sacremoses (setup.py) ... done
+  Created wheel for sacremoses: filename=sacremoses-0.0.43-cp36-none-any.whl size=893260 sha256=bef554a9fb8f31e28dfec5bb59361130a0a372696c745ca1d7054262e3632928
+  Stored in directory: /root/.cache/pip/wheels/29/3c/fd/7ce5c3f0666dab31a50123635e6fb5e19ceb42ce38d4e58f45
+  Building wheel for keras-pos-embd (setup.py) ... done
+  Created wheel for keras-pos-embd: filename=keras_pos_embd-0.11.0-cp36-none-any.whl size=7554 sha256=68b30e41c554662b4e009a8d6636699595dc5ee1a0e1a97f779f8d8b836c8324
+  Stored in directory: /root/.cache/pip/wheels/5b/a1/a0/ce6b1d49ba1a9a76f592e70cf297b05c96bc9f418146761032
+  Building wheel for keras-multi-head (setup.py) ... done
+  Created wheel for keras-multi-head: filename=keras_multi_head-0.27.0-cp36-none-any.whl size=15611 sha256=96c09d9d783c2ec3076c95603b9fcd62201f3ed6c063070391e81427abf60160
+  Stored in directory: /root/.cache/pip/wheels/b5/b4/49/0a0c27dcb93c13af02fea254ff51d1a43a924dd4e5b7a7164d
+  Building wheel for keras-layer-normalization (setup.py) ... done
+  Created wheel for keras-layer-normalization: filename=keras_layer_normalization-0.14.0-cp36-none-any.whl size=5268 sha256=6c441851437f477ede7fefdc1b3d77f581c5ac12d67c2de8eb90a6b36dddd32c
+  Stored in directory: /root/.cache/pip/wheels/54/80/22/a638a7d406fd155e507aa33d703e3fa2612b9eb7bb4f4fe667
+  Building wheel for keras-position-wise-feed-forward (setup.py) ... done
+  Created wheel for keras-position-wise-feed-forward: filename=keras_position_wise_feed_forward-0.6.0-cp36-none-any.whl size=5623 sha256=cf0f5d03abd28d31d000da0934c97be89fcfdca2543ad026cb0d64cd2356bd9b
+  Stored in directory: /root/.cache/pip/wheels/39/e2/e2/3514fef126a00574b13bc0b9e23891800158df3a3c19c96e3b
+  Building wheel for keras-embed-sim (setup.py) ... done
+  Created wheel for keras-embed-sim: filename=keras_embed_sim-0.7.0-cp36-none-any.whl size=4676 sha256=249ebdeb0525e75c1a25adc7a39167cff0981d527c8226601e86512f1d0f2c9b
+  Stored in directory: /root/.cache/pip/wheels/d1/bc/b1/b0c45cee4ca2e6c86586b0218ffafe7f0703c6d07fdf049866
+  Building wheel for keras-self-attention (setup.py) ... done
+  Created wheel for keras-self-attention: filename=keras_self_attention-0.46.0-cp36-none-any.whl size=17278 sha256=058cd5b376a4c74dc0b02c1d98a9014e2f90a3d7ce65fa8c6523b32466a4d4b7
+  Stored in directory: /root/.cache/pip/wheels/d2/2e/80/fec4c05eb23c8e13b790e26d207d6e0ffe8013fad8c6bdd4d2
+Successfully built ktrain keras-bert langdetect seqeval syntok gast keras-transformer sacremoses keras-pos-embd keras-multi-head keras-layer-normalization keras-position-wise-feed-forward keras-embed-sim keras-self-attention
+<span class="ansi-red-fg">ERROR: tensorflow-probability 0.10.0 has requirement gast&gt;=0.3.2, but you'll have gast 0.2.2 which is incompatible.</span>
+Installing collected packages: gast, tensorboard, tensorflow-estimator, tensorflow, scikit-learn, keras-pos-embd, keras-self-attention, keras-multi-head, keras-layer-normalization, keras-position-wise-feed-forward, keras-embed-sim, keras-transformer, keras-bert, langdetect, cchardet, seqeval, tokenizers, sentencepiece, sacremoses, transformers, syntok, whoosh, ktrain
+  Found existing installation: gast 0.3.3
+    Uninstalling gast-0.3.3:
+      Successfully uninstalled gast-0.3.3
+  Found existing installation: tensorboard 2.2.2
+    Uninstalling tensorboard-2.2.2:
+      Successfully uninstalled tensorboard-2.2.2
+  Found existing installation: tensorflow-estimator 2.2.0
+    Uninstalling tensorflow-estimator-2.2.0:
+      Successfully uninstalled tensorflow-estimator-2.2.0
+  Found existing installation: tensorflow 2.2.0
+    Uninstalling tensorflow-2.2.0:
+      Successfully uninstalled tensorflow-2.2.0
+  Found existing installation: scikit-learn 0.22.2.post1
+    Uninstalling scikit-learn-0.22.2.post1:
+      Successfully uninstalled scikit-learn-0.22.2.post1
+Successfully installed cchardet-2.1.5 gast-0.2.2 keras-bert-0.84.0 keras-embed-sim-0.7.0 keras-layer-normalization-0.14.0 keras-multi-head-0.27.0 keras-pos-embd-0.11.0 keras-position-wise-feed-forward-0.6.0 keras-self-attention-0.46.0 keras-transformer-0.37.0 ktrain-0.16.3 langdetect-1.0.8 sacremoses-0.0.43 scikit-learn-0.21.3 sentencepiece-0.1.91 seqeval-0.0.12 syntok-1.3.1 tensorboard-2.1.1 tensorflow-2.1.0 tensorflow-estimator-2.1.0 tokenizers-0.7.0 transformers-2.11.0 whoosh-2.7.4
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>git clone https://github.com/laxmimerit/IMDB-Movie-Reviews-Large-Dataset-50k.git
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Cloning into 'IMDB-Movie-Reviews-Large-Dataset-50k'...
+remote: Enumerating objects: 10, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (8/8), done.
+remote: Total 10 (delta 1), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (10/10), done.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ktrain</span>
+<span class="kn">from</span> <span class="nn">ktrain</span> <span class="kn">import</span> <span class="n">text</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">'/content/IMDB-Movie-Reviews-Large-Dataset-50k/test.xlsx'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span> <span class="nb">str</span><span class="p">)</span>
+<span class="n">data_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">'/content/IMDB-Movie-Reviews-Large-Dataset-50k/train.xlsx'</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">str</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data_train</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Reviews</th>
+      <th>Sentiment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>16715</th>
+      <td>The sequel to the ever popular Cinderella stor...</td>
+      <td>pos</td>
+    </tr>
+    <tr>
+      <th>11207</th>
+      <td>Excellent pirate entertainment! It has all the...</td>
+      <td>pos</td>
+    </tr>
+    <tr>
+      <th>12609</th>
+      <td>The Underground Comedy movie is perhaps one of...</td>
+      <td>neg</td>
+    </tr>
+    <tr>
+      <th>10685</th>
+      <td>My cable TV has what's called the Arts channel...</td>
+      <td>pos</td>
+    </tr>
+    <tr>
+      <th>1633</th>
+      <td>This movie was terrible. Throughout the whole ...</td>
+      <td>neg</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">text</span><span class="o">.</span><span class="n">print_text_classifiers</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>fasttext: a fastText-like model [http://arxiv.org/pdf/1607.01759.pdf]
+logreg: logistic regression using a trainable Embedding layer
+nbsvm: NBSVM model [http://www.aclweb.org/anthology/P12-2018]
+bigru: Bidirectional GRU with pretrained fasttext word vectors [https://fasttext.cc/docs/en/crawl-vectors.html]
+standard_gru: simple 2-layer GRU with randomly initialized embeddings
+bert: Bidirectional Encoder Representations from Transformers (BERT) [https://arxiv.org/abs/1810.04805]
+distilbert: distilled, smaller, and faster BERT from Hugging Face [https://arxiv.org/abs/1910.01108]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">preproc</span><span class="p">)</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">texts_from_df</span><span class="p">(</span><span class="n">train_df</span><span class="o">=</span><span class="n">data_train</span><span class="p">,</span> <span class="n">text_column</span><span class="o">=</span><span class="s1">'Reviews'</span><span class="p">,</span> <span class="n">label_columns</span><span class="o">=</span><span class="s1">'Sentiment'</span><span class="p">,</span>
+                   <span class="n">val_df</span> <span class="o">=</span> <span class="n">data_test</span><span class="p">,</span>
+                   <span class="n">maxlen</span> <span class="o">=</span> <span class="mi">400</span><span class="p">,</span>
+                   <span class="n">preprocess_mode</span> <span class="o">=</span> <span class="s1">'distilbert'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>preprocessing train...
+language: en
+train sequence lengths:
+	mean : 234
+	95percentile : 598
+	99percentile : 913
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Is Multi-Label? False
+preprocessing test...
+language: en
+test sequence lengths:
+	mean : 234
+	95percentile : 598
+	99percentile : 913
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">text_classifier</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">'distilbert'</span><span class="p">,</span> <span class="n">train_data</span> <span class="o">=</span> <span class="n">train</span><span class="p">,</span> <span class="n">preproc</span><span class="o">=</span><span class="n">preproc</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Is Multi-Label? False
+maxlen is 400
+done.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">learner</span> <span class="o">=</span> <span class="n">ktrain</span><span class="o">.</span><span class="n">get_learner</span><span class="p">(</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span>
+                             <span class="n">train_data</span> <span class="o">=</span> <span class="n">train</span><span class="p">,</span>
+                             <span class="n">val_data</span> <span class="o">=</span> <span class="n">val</span><span class="p">,</span>
+                             <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">learner</span><span class="o">.</span><span class="n">fit_onecycle</span><span class="p">(</span><span class="n">lr</span> <span class="o">=</span> <span class="mf">2e-5</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+
+begin training using onecycle policy with max lr of 2e-05...
+Train for 4167 steps, validate for 782 steps
+Epoch 1/2
+4167/4167 [==============================] - 3154s 757ms/step - loss: 0.2932 - accuracy: 0.8717 - val_loss: 0.1613 - val_accuracy: 0.9406
+Epoch 2/2
+4167/4167 [==============================] - 3131s 751ms/step - loss: 0.1552 - accuracy: 0.9440 - val_loss: 0.0623 - val_accuracy: 0.9836
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;tensorflow.python.keras.callbacks.History at 0x7fe2fc067048&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">ktrain</span><span class="o">.</span><span class="n">get_predictor</span><span class="p">(</span><span class="n">learner</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">preproc</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
+<span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">'/content/drive'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Go to this URL in a browser: https://accounts.google.com/o/oauth2/auth?client_id=947318989803-6bn6qk8qdgf4n4g3pfee6491hc0brc4i.apps.googleusercontent.com&amp;redirect_uri=urn%3aietf%3awg%3aoauth%3a2.0%3aoob&amp;response_type=code&amp;scope=email%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdocs.test%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdrive%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdrive.photos.readonly%20https%3a%2f%2fwww.googleapis.com%2fauth%2fpeopleapi.readonly
+
+Enter your authorization code:
+··········
+Mounted at /content/drive
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">'/content/drive/My Drive/distilbert'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'this movie was really bad. acting was also bad. I will not watch again'</span><span class="p">,</span>
+        <span class="s1">'the movie was really great. I will see it again'</span><span class="p">,</span> <span class="s1">'another great movie. must watch to everyone'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['neg', 'pos', 'pos']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">get_classes</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['neg', 'pos']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">return_proba</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+</div>
+
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([[0.9944576 , 0.00554235],
+       [0.00516187, 0.99483806],
+       [0.00479033, 0.99520963]], dtype=float32)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="girijeshcse/scribble"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/scribble/jupyter/2021/09/14/Sentiment-Classification-using-DistilBERT.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/scribble/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/scribble/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/scribble/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A place to explore and rewrite my technical voyage.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/girijeshcse" title="girijeshcse"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/girijesh_" title="girijesh_"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
