@@ -95,12 +95,28 @@ window.onload = wrap_img;
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#the-problem-with-depth">The Problem with Depth!</a></li>
+<li class="toc-entry toc-h2"><a href="#solution-came-as-identity-mapping">Solution came as Identity mapping</a></li>
 </ul><h2 id="the-problem-with-depth">
 <a class="anchor" href="#the-problem-with-depth" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Problem with Depth!</h2>
 
-<p>This was the time when after the success of AlexNet on ImageNet data, people started building deeper and deeper network and every time someone managed to build a big network, accuracy on Imagenet data was increased a bit.</p>
+<p>This was the time when after the success of AlexNet on ImageNet data, people started building deeper and deeper network and every time someone managed to build a big network, accuracy on Imagenet data was increased a bit. 
+But this happiness didn’t last long and there was a bottleneck while creating a more deeper network.</p>
+
+<p>As you can increase the depth of neural network, you can make it better in term of  generalization and you can reach lower training loss but optimizing this network was hard.
+Problem of vanishing/exploding gradients, which hamper convergence from beginning, though it was addressed by introducing batch normalization (in paper they called as normalized initialization and intermediate normalization).
+When deeper networks are able to start converging, a degradation problem has been exposed: with the network depth increasing, accuracy gets saturated (which might be unsurprising) and then degrades rapidly. Unexpectedly, such degradation is not caused by overfitting, and adding more layers to a suitably deep model leads to higher training error as observerd that a 20 layer deep network was better in term of test and train accuracy than its 56 layre counterpart. The result of CIFAR-10 data has been shown in this picture.</p>
 
 <p><img src="/scribble/images/resnet1.JPG" alt=""></p>
+
+<h2 id="solution-came-as-identity-mapping">
+<a class="anchor" href="#solution-came-as-identity-mapping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Solution came as Identity mapping</h2>
+
+<p>The degradation (of training accuracy) indicates that not all systems are similarly easy to optimize. Let us consider a shallower architecture and its deeper counterpart that adds more layers onto it. There exists a solution by construction to the deeper model: the added layers are <em>identity mapping</em>,
+and the other layers are copied from the learned shallower model. The existence of this constructed solution indicates that a deeper model should produce no higher training error than its shallower counterpart. But experiments show that
+our current solvers on hand are unable to find solutions that are comparably good or better than the constructed solution
+(or unable to do so in feasible time).</p>
+
+<p><img src="/scribble/images/resnet2.JPG" alt=""></p>
 
 
   </div><a class="u-url" href="/scribble/markdown/2021/09/15/All-about-ResNet.html" hidden></a>
