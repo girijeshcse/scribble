@@ -77,7 +77,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      3 min read
+      1 min read
     
 </span></p>
 
@@ -95,58 +95,12 @@ window.onload = wrap_img;
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#the-problem-with-depth">The Problem with Depth!</a></li>
-<li class="toc-entry toc-h2"><a href="#why-pytorch">Why PyTorch</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#a-camparision-to-tensorflow">A camparision to TensorFlow</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#how-pytorch-supports-deep-learning-projects">How PyTorch supports deep learning projects.</a></li>
 </ul><h2 id="the-problem-with-depth">
 <a class="anchor" href="#the-problem-with-depth" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Problem with Depth!</h2>
 
 <p>This was the time when after the success of AlexNet on ImageNet data, people started building deeper and deeper network and every time someone managed to build a big network, accuracy on Imagenet data was increased a bit.</p>
 
-<p><img src="/scribbleimages/resnet1.JPG" alt=""></p>
-
-<ul>
-  <li>We need a way to ingest whatever data we have at hand.</li>
-  <li>We somehow need to define the deep learning machine.</li>
-  <li>We must have an automated way, training, to obtain useful representations and make the machine produce desired outputs.</li>
-</ul>
-
-<h2 id="why-pytorch">
-<a class="anchor" href="#why-pytorch" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why PyTorch</h2>
-<ul>
-  <li>PyTorch gives us a data type, the Tensor, to hold numbers, vectors, matrices, or arrays in general. In addition, it provides functions for operating on them.</li>
-  <li>It provides accelerated computation using graphical processing units (GPUs), often yielding speedups in the range of 50x over doing the same calculation on a CPU.</li>
-  <li>PyTorch provides facilities that support numerical optimization on generic mathematical expressions, which deep learning uses for training.</li>
-  <li>One of the motivations for this capability is to provide a reliable strategy for deploying models in production.</li>
-  <li>Moving computations from the CPU to the GPU in PyTorch doesn’t require more than an additional function call or two. The second core thing that PyTorch provides is the ability of tensors to keep track of the operations performed on them and to analytically compute derivatives of an output of a computation with respect to any of its inputs. This is used for numerical optimization, and it is provided natively by tensors by virtue of dispatching through PyTorch’s autograd engine under the hood.</li>
-  <li>The core PyTorch modules for building neural networks are located in torch.nn, which provides common neural network layers and other architectural components. Fully connected layers, convolutional layers, activation functions, and loss functions can all be found here.</li>
-</ul>
-
-<h3 id="a-camparision-to-tensorflow">
-<a class="anchor" href="#a-camparision-to-tensorflow" aria-hidden="true"><span class="octicon octicon-link"></span></a>A camparision to TensorFlow</h3>
-<p>TensorFlow has a robust pipeline to production, an extensive industry-wide community,
-and massive mindshare. PyTorch has made huge inroads with the research and
-teaching communities, thanks to its ease of use, and has picked up momentum since,
-as researchers and graduates train students and move to industry.</p>
-
-<h2 id="how-pytorch-supports-deep-learning-projects">
-<a class="anchor" href="#how-pytorch-supports-deep-learning-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>How PyTorch supports deep learning projects.</h2>
-<ul>
-  <li>First we need to physically get the data, most often from some sort of storage as the data source. Then we need to convert each sample from our data into a something PyTorch can actually handle: tensors</li>
-  <li>This bridge between our custom data (in whatever format it might be) and a standardized PyTorch tensor is the Dataset class PyTorch provides in torch.utils.data.</li>
-  <li>we will need multiple processes to load our data, in order to assemble them into batches: tensors that encompass several samples. This is rather elaborate; but as it is also relatively generic, PyTorch readily provides all that magic in the DataLoader class. Its instances can spawn child processes to load data from a dataset in the background so that it’s ready and waiting for the training loop as soon as the loop can use it.</li>
-  <li>At each step in the training loop, we evaluate our model on the samples we got from the data loader. We then compare the outputs of our model to the desired  output (the targets) using some criterion or loss function.</li>
-</ul>
-
-<p><img src="/scribble/images/dl2.JPG" alt=" " title="PyTotch deep learning stages"></p>
-
-<ul>
-  <li>The training loop might be the most unexciting yet most time-consuming part of a deep learning project. At the end of it, we are rewarded with a model whose parameters have been optimized on our task: the trained model depicted to the right of the training loop in the figure.</li>
-  <li>PyTorch defaults to an immediate execution model (eager mode). Whenever an instruction involving PyTorch is executed by the Python interpreter, the corresponding operation is immediately carried out by the underlying C++ or CUDA implementation.</li>
-</ul>
+<p><img src="/scribble/images/resnet1.JPG" alt=""></p>
 
 
   </div><a class="u-url" href="/scribble/markdown/2021/09/15/All-about-ResNet.html" hidden></a>
