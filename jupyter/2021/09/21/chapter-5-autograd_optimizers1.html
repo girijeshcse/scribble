@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Chapter 5 The Magic of Autograd and Optimizers | Girijesh’s scribble and code</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Chapter 5 The Magic of Autograd and Optimizers" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A summary of chapter 5 part 2 of Deep learning with PyTorch" />
+<meta property="og:description" content="A summary of chapter 5 part 2 of Deep learning with PyTorch" />
+<link rel="canonical" href="https://girijeshcse.github.io/scribble/jupyter/2021/09/21/chapter-5-autograd_optimizers1.html" />
+<meta property="og:url" content="https://girijeshcse.github.io/scribble/jupyter/2021/09/21/chapter-5-autograd_optimizers1.html" />
+<meta property="og:site_name" content="Girijesh’s scribble and code" />
+<meta property="og:image" content="https://girijeshcse.github.io/scribble/image/chart-preview" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-09-21T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2021-09-21T00:00:00-05:00","url":"https://girijeshcse.github.io/scribble/jupyter/2021/09/21/chapter-5-autograd_optimizers1.html","@type":"BlogPosting","image":"https://girijeshcse.github.io/scribble/image/chart-preview","headline":"Chapter 5 The Magic of Autograd and Optimizers","dateModified":"2021-09-21T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://girijeshcse.github.io/scribble/jupyter/2021/09/21/chapter-5-autograd_optimizers1.html"},"description":"A summary of chapter 5 part 2 of Deep learning with PyTorch","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/scribble/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://girijeshcse.github.io/scribble/feed.xml" title="Girijesh's scribble and code" /><link rel="shortcut icon" type="image/x-icon" href="/scribble/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/scribble/">Girijesh&#39;s scribble and code</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/scribble/about/">About Me</a><a class="page-link" href="/scribble/search/">Search</a><a class="page-link" href="/scribble/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chapter 5 The Magic of Autograd and Optimizers</h1><p class="page-description">A summary of chapter 5 part 2 of Deep learning with PyTorch</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-09-21T00:00:00-05:00" itemprop="datePublished">
+        Sep 21, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      3 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/scribble/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/girijeshcse/scribble/tree/master/_notebooks/2021-09-21-chapter-5-autograd_optimizers1.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/scribble/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/girijeshcse/scribble/master?filepath=_notebooks%2F2021-09-21-chapter-5-autograd_optimizers1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/girijeshcse/scribble/blob/master/_notebooks/2021-09-21-chapter-5-autograd_optimizers1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#The-magic-of-Autograd">The magic of Autograd </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Computing-the-gradient-automatically">Computing the gradient automatically </a></li>
+<li class="toc-entry toc-h2"><a href="#The-forward-graph-and-backward-graph-of-the-model-as-computed-with-autograd">The forward graph and backward graph of the model as computed with autograd </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Accumulating-Grad-Funtion">Accumulating Grad Funtion </a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Making-this-more-better">Making this more better </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-09-21-chapter-5-autograd_optimizers1.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-magic-of-Autograd">
+<a class="anchor" href="#The-magic-of-Autograd" aria-hidden="true"><span class="octicon octicon-link"></span></a>The magic of Autograd<a class="anchor-link" href="#The-magic-of-Autograd"> </a>
+</h1>
+<p>In <a href="https://girijeshcse.github.io/scribble/jupyter/2121/09/14/chapter-5.html">part 1</a> we saw that how we can train a linear model with backpropagation. In nutshell what we computed the gradient of a composition of functions—the model and the loss—with respect to their innermost parameters (w and b) by propagating derivatives backward using the chain rule.</p>
+<p>The basic requirement here is that all functions we’re dealing
+with can be differentiated analytically but as we increase the depth of the model, writing the analytical expression for the derivatives is not that easy.</p>
+<p>This is when PyTorch tensors come to the rescue, with a PyTorch component called
+<em>autograd</em>.</p>
+<p>PyTorch tensors can remember where they come from, in terms of the operations and parent tensors that originated them, and they can automatically provide the chain of derivatives of such operations with respect to their inputs. This means <strong>PyTorch will automatically provide the gradient of that expression with respect to its input parameters.</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Computing-the-gradient-automatically">
+<a class="anchor" href="#Computing-the-gradient-automatically" aria-hidden="true"><span class="octicon octicon-link"></span></a>Computing the gradient automatically<a class="anchor-link" href="#Computing-the-gradient-automatically"> </a>
+</h2>
+<p>Lets rewrite out code using autograd.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">edgeitems</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">t_c</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">14.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">28.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">,</span>
+                    <span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">13.0</span><span class="p">,</span> <span class="mf">21.0</span><span class="p">])</span>
+<span class="n">t_u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">35.7</span><span class="p">,</span> <span class="mf">55.9</span><span class="p">,</span> <span class="mf">58.2</span><span class="p">,</span> <span class="mf">81.9</span><span class="p">,</span> <span class="mf">56.3</span><span class="p">,</span> <span class="mf">48.9</span><span class="p">,</span>
+                    <span class="mf">33.9</span><span class="p">,</span> <span class="mf">21.8</span><span class="p">,</span> <span class="mf">48.4</span><span class="p">,</span> <span class="mf">60.4</span><span class="p">,</span> <span class="mf">68.4</span><span class="p">])</span>
+<span class="n">t_un</span> <span class="o">=</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">t_u</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Recalling our model and loss function</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">t_u</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">w</span> <span class="o">*</span> <span class="n">t_u</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">t_p</span><span class="p">,</span> <span class="n">t_c</span><span class="p">):</span>
+    <span class="n">squared_diffs</span> <span class="o">=</span> <span class="p">(</span><span class="n">t_p</span> <span class="o">-</span> <span class="n">t_c</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">squared_diffs</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let’s again initialize a parameters tensor:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <em>requires_grad=True</em> argument is telling PyTorch to track the entire family tree of tensors resulting from operations on params.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="kc">None</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>True</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">t_u</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">),</span> <span class="n">t_c</span><span class="p">)</span>
+<span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+<span class="n">params</span><span class="o">.</span><span class="n">grad</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([4517.2969,   82.6000])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point, the grad attribute of params contains the derivatives of the loss with respect to each element of params.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-forward-graph-and-backward-graph-of-the-model-as-computed-with-autograd">
+<a class="anchor" href="#The-forward-graph-and-backward-graph-of-the-model-as-computed-with-autograd" aria-hidden="true"><span class="octicon octicon-link"></span></a>The forward graph and backward graph of the model as computed with autograd<a class="anchor-link" href="#The-forward-graph-and-backward-graph-of-the-model-as-computed-with-autograd"> </a>
+</h2>
+<p><img src="/scribble/images/copied_from_nb/my_icons/ch55.JPG" alt=""></p>
+<p>When we compute our loss while the parameters w and b require gradients, in addition to performing the actual computation, PyTorch creates the autograd graph with the operations (in black circles) as nodes, as shown in the top row of figure above. When we call <em>loss.backward()</em>, PyTorch traverses this graph in the reverse direction to compute the gradients, as shown by the arrows in the bottom row of the figure.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Accumulating-Grad-Funtion">
+<a class="anchor" href="#Accumulating-Grad-Funtion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Accumulating Grad Funtion<a class="anchor-link" href="#Accumulating-Grad-Funtion"> </a>
+</h3>
+<p>Calling backward will lead derivatives to accumulate at leaf nodes. So if backward was called earlier, the loss is evaluated again, backward is called again (as in any training loop), and the gradient at each leaf is accumulated (that is, summed) on top of the one computed at the previous iteration, which leads to an <strong><em>incorrect value</em></strong> for the gradient. In order to prevent this from occurring, <strong><em>we need to zero the gradient explicitly at each iteration</em></strong>. We can do this easily using the in-place zero_ method:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">training_loop</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">t_u</span><span class="p">,</span> <span class="n">t_c</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_epochs</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># This could be done at any point in the loop prior to calling loss.backward().</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+        
+        <span class="n">t_p</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">t_u</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">)</span> 
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">t_p</span><span class="p">,</span> <span class="n">t_c</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>  <span class="c1"># This is a somewhat cumbersome bit of code, but as we’ll see in the next section, it’s not an issue in practice.</span>
+            <span class="n">params</span> <span class="o">-=</span> <span class="n">learning_rate</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">grad</span>
+
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">500</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'Epoch </span><span class="si">%d</span><span class="s1">, Loss </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="p">)))</span>
+            
+    <span class="k">return</span> <span class="n">params</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">training_loop</span><span class="p">(</span>
+    <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span> 
+    <span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> 
+    <span class="n">params</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="c1"># &lt;1&gt; </span>
+    <span class="n">t_u</span> <span class="o">=</span> <span class="n">t_un</span><span class="p">,</span> <span class="c1"># &lt;2&gt; </span>
+    <span class="n">t_c</span> <span class="o">=</span> <span class="n">t_c</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Epoch 500, Loss 7.860115
+Epoch 1000, Loss 3.828538
+Epoch 1500, Loss 3.092191
+Epoch 2000, Loss 2.957698
+Epoch 2500, Loss 2.933134
+Epoch 3000, Loss 2.928648
+Epoch 3500, Loss 2.927830
+Epoch 4000, Loss 2.927679
+Epoch 4500, Loss 2.927652
+Epoch 5000, Loss 2.927647
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>tensor([  5.3671, -17.3012], requires_grad=True)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Making-this-more-better">
+<a class="anchor" href="#Making-this-more-better" aria-hidden="true"><span class="octicon octicon-link"></span></a>Making this more better<a class="anchor-link" href="#Making-this-more-better"> </a>
+</h1>
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="girijeshcse/scribble"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/scribble/jupyter/2021/09/21/chapter-5-autograd_optimizers1.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/scribble/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/scribble/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/scribble/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A place to explore and rewrite my technical voyage.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/girijeshcse" title="girijeshcse"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/girijesh_" title="girijesh_"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
