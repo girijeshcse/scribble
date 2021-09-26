@@ -77,7 +77,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      8 min read
+      9 min read
     
 </span></p>
 
@@ -116,6 +116,10 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#A-single-neuron">A single neuron </a></li>
+<li class="toc-entry toc-h2"><a href="#A-Multilayer-perceptron">A Multilayer perceptron </a></li>
+<li class="toc-entry toc-h2"><a href="#Activation-function">Activation function </a></li>
+<li class="toc-entry toc-h2"><a href="#Charecteristics-of-a-best-activation-funtion">Charecteristics of a best activation funtion </a></li>
 <li class="toc-entry toc-h1"><a href="#Using-torch.nn">Using torch.nn </a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#Replacing-the-linear-model">Replacing the linear model </a></li>
@@ -131,6 +135,40 @@ window.onload = wrap_img;
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="A-single-neuron">
+<a class="anchor" href="#A-single-neuron" aria-hidden="true"><span class="octicon octicon-link"></span></a>A single neuron<a class="anchor-link" href="#A-single-neuron"> </a>
+</h2>
+<p>At the core of deep learning are neural networks: mathematical entities capable of representing complicated functions through a composition of simpler functions. The basic building block of these complicated functions is the neuron, and  it is nothing but a linear transformation of the input (for example, multiplying the input by a number [the weight] and adding a constant [the bias]) followed by the application of a fixed nonlinear function (referred to as the activation function).</p>
+<p><img src="/scribble/images/copied_from_nb/my_icons/ch61.JPG" alt=""></p>
+<h2 id="A-Multilayer-perceptron">
+<a class="anchor" href="#A-Multilayer-perceptron" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Multilayer perceptron<a class="anchor-link" href="#A-Multilayer-perceptron"> </a>
+</h2>
+<p>In the similar fashion a multilayer neural network, as represented in figure below is made up of a composition of functions where the output of a layer of neurons is used as an input for the following layer.</p>
+<p><img src="/scribble/images/copied_from_nb/my_icons/ch62.JPG" alt=""></p>
+<h2 id="Activation-function">
+<a class="anchor" href="#Activation-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>Activation function<a class="anchor-link" href="#Activation-function"> </a>
+</h2>
+<p>Next we need an activation function. The activation function plays two important roles:</p>
+<ol>
+<li>In the inner parts of the model, it allows the output function to have 
+different slopes at different values—something a linear function by definition cannot do. By trickily composing these differently sloped parts for many outputs, neural networks can approximate arbitrary functions.</li>
+<li>At the last layer of the network, it has the role of concentrating the outputs of the preceding linear operation into a given range.</li>
+</ol>
+<h2 id="Charecteristics-of-a-best-activation-funtion">
+<a class="anchor" href="#Charecteristics-of-a-best-activation-funtion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Charecteristics of a best activation funtion<a class="anchor-link" href="#Charecteristics-of-a-best-activation-funtion"> </a>
+</h2>
+<p>By definition, activation functions</p>
+<ol>
+<li>Are nonlinear. Repeated applications of (w*x+b) without an activation function results in a function of the same (affine linear) form. The nonlinearity allows the overall network to approximate more complex functions.</li>
+<li>Are differentiable, so that gradients can be computed through them. Point discontinuities, as we can see in Hardtanh or ReLU, are fine.</li>
+</ol>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
