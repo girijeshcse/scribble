@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Fine-tuning your first Transformer! | Girijesh’s scribble and code</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Fine-tuning your first Transformer!" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Explring Huggingface Transformers library in MLt workshop part 2" />
+<meta property="og:description" content="Explring Huggingface Transformers library in MLt workshop part 2" />
+<link rel="canonical" href="https://girijeshcse.github.io/scribble/jupyter/2021/10/28/text-classification.html" />
+<meta property="og:url" content="https://girijeshcse.github.io/scribble/jupyter/2021/10/28/text-classification.html" />
+<meta property="og:site_name" content="Girijesh’s scribble and code" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-10-28T00:00:00-05:00" />
+<script type="application/ld+json">
+{"datePublished":"2021-10-28T00:00:00-05:00","url":"https://girijeshcse.github.io/scribble/jupyter/2021/10/28/text-classification.html","@type":"BlogPosting","headline":"Fine-tuning your first Transformer!","dateModified":"2021-10-28T00:00:00-05:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://girijeshcse.github.io/scribble/jupyter/2021/10/28/text-classification.html"},"description":"Explring Huggingface Transformers library in MLt workshop part 2","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/scribble/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://girijeshcse.github.io/scribble/feed.xml" title="Girijesh's scribble and code" /><link rel="shortcut icon" type="image/x-icon" href="/scribble/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/scribble/">Girijesh&#39;s scribble and code</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/scribble/about/">About Me</a><a class="page-link" href="/scribble/search/">Search</a><a class="page-link" href="/scribble/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Fine-tuning your first Transformer!</h1><p class="page-description">Explring Huggingface Transformers library in MLt workshop part 2</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-10-28T00:00:00-05:00" itemprop="datePublished">
+        Oct 28, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      25 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/scribble/categories/#jupyter">jupyter</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/girijeshcse/scribble/tree/master/_notebooks/2021-10-28-text-classification.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/scribble/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/girijeshcse/scribble/master?filepath=_notebooks%2F2021-10-28-text-classification.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/girijeshcse/scribble/blob/master/_notebooks/2021-10-28-text-classification.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/scribble/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Fine-tuning-your-first-Transformer!">Fine-tuning your first Transformer! </a></li>
+<li class="toc-entry toc-h2"><a href="#Setup">Setup </a></li>
+<li class="toc-entry toc-h2"><a href="#The-dataset">The dataset </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#What-if-my-dataset-is-not-on-the-Hub?">What if my dataset is not on the Hub? </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#From-Datasets-to-DataFrames-and-back">From Datasets to DataFrames and back </a></li>
+<li class="toc-entry toc-h2"><a href="#Filtering-for-a-product-category">Filtering for a product category </a></li>
+<li class="toc-entry toc-h2"><a href="#Mapping-the-labels">Mapping the labels </a></li>
+<li class="toc-entry toc-h2"><a href="#From-text-to-tokens">From text to tokens </a></li>
+<li class="toc-entry toc-h2"><a href="#Loading-a-pretrained-model">Loading a pretrained model </a></li>
+<li class="toc-entry toc-h2"><a href="#Creating-a-Trainer">Creating a Trainer </a></li>
+<li class="toc-entry toc-h2"><a href="#Evaluating-cross-lingual-transfer">Evaluating cross-lingual transfer </a></li>
+<li class="toc-entry toc-h2"><a href="#Using-your-fine-tuned-model">Using your fine-tuned model </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-10-28-text-classification.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<!--<badge>--><a href="https://colab.research.google.com/github/huggingface/workshops/blob/main/machine-learning-tokyo/02-text-classification.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a><!--</badge>-->
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Fine-tuning-your-first-Transformer!">
+<a class="anchor" href="#Fine-tuning-your-first-Transformer!" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fine-tuning your first Transformer!<a class="anchor-link" href="#Fine-tuning-your-first-Transformer!"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this notebook we'll take a look at fine-tuning a multilingual Transformer model called <a href="https://huggingface.co/xlm-roberta-base">XLM-RoBERTa</a> for text classification. By the end of this notebook you should know how to:</p>
+<ul>
+<li>Load and process a dataset from the Hugging Face Hub</li>
+<li>Create a baseline with the zero-shot classification pipeline</li>
+<li>Fine-tune and evaluate pretrained model on your data</li>
+<li>Push a model to the Hugging Face Hub</li>
+</ul>
+<p>Let's get started!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Setup">
+<a class="anchor" href="#Setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup<a class="anchor-link" href="#Setup"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you're running this notebook on Google Colab or locally, you'll need a few dependencies installed. You can install them with <code>pip</code> as follows:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To be able to share your model with the community there are a few more steps to follow.</p>
+<p>First you have to store your authentication token from the Hugging Face website (sign up <a href="https://huggingface.co/join">here</a> if you haven't already!) then execute the following cell and input your username and password:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">notebook_login</span>
+
+<span class="n">notebook_login</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then you need to install Git-LFS. Uncomment and execute the following cell:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-dataset">
+<a class="anchor" href="#The-dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>The dataset<a class="anchor-link" href="#The-dataset"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this notebook we'll be using the 🤗 Datasets to load and preprocess our data. If you're new to this library, check out the video below to get some additional context:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">YouTubeVideo</span>
+
+<span class="n">YouTubeVideo</span><span class="p">(</span><span class="s2">"_BZearw7f0w"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="600" height="400" src="https://www.youtube.com/embed/_BZearw7f0w" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this tutorial we'll use the <a href="https://huggingface.co/datasets/amazon_reviews_multi">Multilingual Amazon Reviews Corpus</a> (or MARC for short). This is a large-scale collection of Amazon product reviews in several languages: English, Japanese, German, French, Spanish, and Chinese.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can download the dataset from the Hugging Face Hub with the 🤗 Datasets library, but first let's take a look at the available subsets (also called configs):</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">get_dataset_config_names</span>
+
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s2">"amazon_reviews_multi"</span>
+<span class="n">langs</span> <span class="o">=</span> <span class="n">get_dataset_config_names</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+<span class="n">langs</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['all_languages', 'de', 'en', 'es', 'fr', 'ja', 'zh']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Okay, we can see the language codes associated with each language, as well as an <code>all_languages</code> subset which presumably concatenates all the languages together. Let's begin by downloading the English subset with the <code>load_dataset()</code> function from 🤗 Datasets:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="n">marc_en</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"en"</span><span class="p">)</span>
+<span class="n">marc_en</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Reusing dataset amazon_reviews_multi (/data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DatasetDict({
+    train: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 200000
+    })
+    validation: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 5000
+    })
+    test: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 5000
+    })
+})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>One cool feature of 🤗 Datasets is that <code>load_dataset()</code> will cache the files at <code>~/.cache/huggingface/dataset/</code>, so you won't need to re-download the dataset the next time your run the notebook.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see that <code>marc_en</code> is a <code>DatasetDict</code> object which is similar to a Python dictionary, with each key corresponding to a different split. We can access an element of one of these splits as follows:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">marc_en</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'product_id': 'product_en_0740675',
+ 'review_title': "I'll spend twice the amount of time boxing up the whole useless thing and send it back with a 1-star review ...",
+ 'product_category': 'furniture',
+ 'stars': 1,
+ 'review_body': "Arrived broken. Manufacturer defect. Two of the legs of the base were not completely formed, so there was no way to insert the casters. I unpackaged the entire chair and hardware before noticing this. So, I'll spend twice the amount of time boxing up the whole useless thing and send it back with a 1-star review of part of a chair I never got to sit in. I will go so far as to include a picture of what their injection molding and quality assurance process missed though. I will be hesitant to buy again. It makes me wonder if there aren't missing structures and supports that don't impede the assembly process.",
+ 'review_id': 'en_0964290',
+ 'reviewer_id': 'reviewer_en_0342986',
+ 'language': 'en'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This certainly looks like an Amazon product review and we can see the number of stars associated with the review, as well as some metadata like the language and product category.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also access several rows with a slice:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">marc_en</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][:</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'review_id': ['en_0964290', 'en_0690095', 'en_0311558'],
+ 'product_id': ['product_en_0740675',
+  'product_en_0440378',
+  'product_en_0399702'],
+ 'reviewer_id': ['reviewer_en_0342986',
+  'reviewer_en_0133349',
+  'reviewer_en_0152034'],
+ 'stars': [1, 1, 1],
+ 'review_body': ["Arrived broken. Manufacturer defect. Two of the legs of the base were not completely formed, so there was no way to insert the casters. I unpackaged the entire chair and hardware before noticing this. So, I'll spend twice the amount of time boxing up the whole useless thing and send it back with a 1-star review of part of a chair I never got to sit in. I will go so far as to include a picture of what their injection molding and quality assurance process missed though. I will be hesitant to buy again. It makes me wonder if there aren't missing structures and supports that don't impede the assembly process.",
+  'the cabinet dot were all detached from backing... got me',
+  "I received my first order of this product and it was broke so I ordered it again. The second one was broke in more places than the first. I can't blame the shipping process as it's shrink wrapped and boxed."],
+ 'review_title': ["I'll spend twice the amount of time boxing up the whole useless thing and send it back with a 1-star review ...",
+  'Not use able',
+  'The product is junk.'],
+ 'language': ['en', 'en', 'en'],
+ 'product_category': ['furniture', 'home_improvement', 'home']}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>and note that now we get a list of values for each column. This is because 🤗 Datasets is based on Apache Arrow, which defines a typed columnar format that is very memory efficient.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="What-if-my-dataset-is-not-on-the-Hub?">
+<a class="anchor" href="#What-if-my-dataset-is-not-on-the-Hub?" aria-hidden="true"><span class="octicon octicon-link"></span></a>What if my dataset is not on the Hub?<a class="anchor-link" href="#What-if-my-dataset-is-not-on-the-Hub?"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that altough we downloaded the dataset from the Hub, it's also possible to load datasets both locally and from custom URLs. For example, the above dataset lives at the following URL:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dataset_url</span> <span class="o">=</span> <span class="s2">"https://amazon-reviews-ml.s3-us-west-2.amazonaws.com/json/train/dataset_en_train.json"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>so we can download it manually with <code>wget</code>:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>wget <span class="o">{</span>dataset_url<span class="o">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>--2021-10-21 20:37:45--  https://amazon-reviews-ml.s3-us-west-2.amazonaws.com/json/train/dataset_en_train.json
+Resolving amazon-reviews-ml.s3-us-west-2.amazonaws.com (amazon-reviews-ml.s3-us-west-2.amazonaws.com)... 52.218.137.145
+Connecting to amazon-reviews-ml.s3-us-west-2.amazonaws.com (amazon-reviews-ml.s3-us-west-2.amazonaws.com)|52.218.137.145|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 81989414 (78M) [application/json]
+Saving to: ‘dataset_en_train.json.1’
+
+dataset_en_train.js 100%[===================&gt;]  78.19M  19.6MB/s    in 5.0s    
+
+2021-10-21 20:37:51 (15.5 MB/s) - ‘dataset_en_train.json.1’ saved [81989414/81989414]
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can then load it locally using the <code>json</code> loading script:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">data_files</span><span class="o">=</span><span class="s2">"dataset_en_train.json"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Using custom data configuration default-570056450f602d5e
+Reusing dataset json (/data/.cache/hf/datasets/json/default-570056450f602d5e/0.0.0/c2d554c3377ea79c7664b93dc65d0803b45e3279000f993c7bfd18937fd7f426)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DatasetDict({
+    train: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 200000
+    })
+})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can actually skip the manual download step entirely by pointing <code>data_files</code> directly to the URL:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">"json"</span><span class="p">,</span> <span class="n">data_files</span><span class="o">=</span><span class="n">dataset_url</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Using custom data configuration default-8ad9aeba1b860e85
+Reusing dataset json (/data/.cache/hf/datasets/json/default-8ad9aeba1b860e85/0.0.0/c2d554c3377ea79c7664b93dc65d0803b45e3279000f993c7bfd18937fd7f426)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DatasetDict({
+    train: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 200000
+    })
+})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we've had a quick look at the objects in 🤗 Datasets, let's explore the data in more detail by using our favourite tool - Pandas!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="From-Datasets-to-DataFrames-and-back">
+<a class="anchor" href="#From-Datasets-to-DataFrames-and-back" aria-hidden="true"><span class="octicon octicon-link"></span></a>From Datasets to DataFrames and back<a class="anchor-link" href="#From-Datasets-to-DataFrames-and-back"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>🤗 Datasets is designed to be interoperable with libraries like Pandas, as well as NumPy, PyTorch, TensorFlow, and JAX. To enable the conversion between various third-party libraries, 🤗 Datasets provides a Dataset.set_format() function. This function only changes the output format of the dataset, so you can easily switch to another format without affecting the underlying data format which is Apache Arrow. The formatting is done in-place, so let’s convert our dataset to Pandas and look at a random sample:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+
+<span class="n">marc_en</span><span class="o">.</span><span class="n">set_format</span><span class="p">(</span><span class="s2">"pandas"</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">marc_en</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][:]</span>
+<span class="c1"># Create a random sample</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">to_html</span><span class="p">()))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>review_id</th>
+      <th>product_id</th>
+      <th>reviewer_id</th>
+      <th>stars</th>
+      <th>review_body</th>
+      <th>review_title</th>
+      <th>language</th>
+      <th>product_category</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>119737</th>
+      <td>en_0522546</td>
+      <td>product_en_0681589</td>
+      <td>reviewer_en_0687817</td>
+      <td>3</td>
+      <td>Not strong enough to run a small 120v vacuum cleaner, to clean car.</td>
+      <td>Not strong enough to run a small 120v vacuum cleaner ...</td>
+      <td>en</td>
+      <td>lawn_and_garden</td>
+    </tr>
+    <tr>
+      <th>72272</th>
+      <td>en_0612910</td>
+      <td>product_en_0295449</td>
+      <td>reviewer_en_0312138</td>
+      <td>2</td>
+      <td>The leg openings are a little small, but other than that the suit fits nicely, and is high quality material. Edit: I have been wearing this for less than two months and it is 100% worn out. It has worn so thin in multiple spots that it’s no longer appropriate for wearing in public, I have to throw it away. This is unacceptable.</td>
+      <td>Crap</td>
+      <td>en</td>
+      <td>apparel</td>
+    </tr>
+    <tr>
+      <th>158154</th>
+      <td>en_0983065</td>
+      <td>product_en_0295095</td>
+      <td>reviewer_en_0927618</td>
+      <td>4</td>
+      <td>Really cute mug. I would have given 5 stars if it were a bit bigger.</td>
+      <td>Four Stars</td>
+      <td>en</td>
+      <td>kitchen</td>
+    </tr>
+    <tr>
+      <th>65426</th>
+      <td>en_0206761</td>
+      <td>product_en_0563487</td>
+      <td>reviewer_en_0936741</td>
+      <td>2</td>
+      <td>Well it’s looks and feels okay but it most certainly does not have 4 pockets that’s a lie it has 3 so that’s pretty messed up to say it has 4 when it’s only 3 the fabric is super stiff hopefully after washing it will be better</td>
+      <td>Lies!!</td>
+      <td>en</td>
+      <td>industrial_supplies</td>
+    </tr>
+    <tr>
+      <th>30074</th>
+      <td>en_0510474</td>
+      <td>product_en_0704805</td>
+      <td>reviewer_en_0417600</td>
+      <td>1</td>
+      <td>Very, very thin, you can bend them with you fingers with no problem! Print is small.. More of a decoration. Would give 1/2 star!</td>
+      <td>Thin and bendable :(</td>
+      <td>en</td>
+      <td>pet_products</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see that the column headers are the same as we saw in the Arrow format and from the reviews we can see that negative reviews are associated with a lower star rating. Since we're now dealing with a <code>pandas.DataFrame</code> we can easily query our dataset. For example, let's see what the distribution of reviews per product category looks like:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">"product_category"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>home                        17679
+apparel                     15951
+wireless                    15717
+other                       13418
+beauty                      12091
+drugstore                   11730
+kitchen                     10382
+toy                          8745
+sports                       8277
+automotive                   7506
+lawn_and_garden              7327
+home_improvement             7136
+pet_products                 7082
+digital_ebook_purchase       6749
+pc                           6401
+electronics                  6186
+office_product               5521
+shoes                        5197
+grocery                      4730
+book                         3756
+baby_product                 3150
+furniture                    2984
+jewelry                      2747
+camera                       2139
+industrial_supplies          1994
+digital_video_download       1364
+luggage                      1328
+musical_instruments          1102
+video_games                   775
+watch                         761
+personal_care_appliances       75
+Name: product_category, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Okay, the <code>home</code>, <code>wireless</code>, and <code>sports</code> categories seem to be the most popular. How about the distribution of star ratings?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">"stars"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1    40000
+2    40000
+3    40000
+4    40000
+5    40000
+Name: stars, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In this case we can see that the dataset is balanced across each star rating, which will make it somewhat easier to evaluate our models on. Imbalanced datasets are much more common in the real-world and in these cases some additional tricks like up- or down-sampling are usually needed.</p>
+<p>Now that we've got a rough idea about the kind of data we're dealing with, let's reset the output format from <code>pandas</code> back to <code>arrow</code>:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">marc_en</span><span class="o">.</span><span class="n">reset_format</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Filtering-for-a-product-category">
+<a class="anchor" href="#Filtering-for-a-product-category" aria-hidden="true"><span class="octicon octicon-link"></span></a>Filtering for a product category<a class="anchor-link" href="#Filtering-for-a-product-category"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Although we could go ahead and fine-tune a Transformer model on the whole set of 200,000 English reviews, this will take several hours on a single GPU. So instead, we'll focus on fine-tuning a model for a single product category! In 🤗 Datasets, we can filter data very quickly by using the <code>Dataset.filter()</code> method. This method expects a function that returns Boolean values, in our case <code>True</code> if the <code>product_category</code> matches the chosen category and <code>False</code> otherwise. Here's one way to implement this, and we'll pick the <code>sports</code> category as the domain to train on:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">product_category</span> <span class="o">=</span> <span class="s2">"book"</span>
+
+<span class="k">def</span> <span class="nf">filter_for_product</span><span class="p">(</span><span class="n">example</span><span class="p">,</span> <span class="n">product_category</span><span class="o">=</span><span class="n">product_category</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">example</span><span class="p">[</span><span class="s2">"product_category"</span><span class="p">]</span> <span class="o">==</span> <span class="n">product_category</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now when we pass <code>filter_for_product()</code> to <code>Dataset.filter()</code> we get a filtered dataset:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">product_dataset</span> <span class="o">=</span> <span class="n">marc_en</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filter_for_product</span><span class="p">)</span>
+<span class="n">product_dataset</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-21f1de1fa6ff5950.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-26f0b93255987e29.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-3f145c4d50b6a176.arrow
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DatasetDict({
+    train: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 3756
+    })
+    validation: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 82
+    })
+    test: Dataset({
+        features: ['review_id', 'product_id', 'reviewer_id', 'stars', 'review_body', 'review_title', 'language', 'product_category'],
+        num_rows: 105
+    })
+})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yep, this looks good - we have 13,748 reviews in the train split which agrees the number we saw in the distribution of categories earlier. Let's do a quick sanity check by taking a look at a few samples. Here 🤗 Datasets provides <code>Dataset.shuffle()</code> and <code>Dataset.select()</code> functions that we can chain to get a random sample:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">product_dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))[:]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Loading cached shuffled indices for dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-939dac9984a2e517.arrow
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'review_id': ['en_0217826', 'en_0395899', 'en_0745242'],
+ 'product_id': ['product_en_0534721',
+  'product_en_0492677',
+  'product_en_0242047'],
+ 'reviewer_id': ['reviewer_en_0872217',
+  'reviewer_en_0829525',
+  'reviewer_en_0758118'],
+ 'stars': [3, 3, 2],
+ 'review_body': ['18 month old has limited interest in this. He LOVES the Farm Animals Touch and Sound by the same company (it’s his favorite!) - but this was not a winner. I think because some of the sounds are beyond his ability to repeat or recreate. Or he has no familiarity (he likes the semi one but his uncle is a trucker and he knows semis).',
+  'Stories are only ok. Some aren’t really stories, just explanations of things. We liked the 5 minute Frozen and 5 minute Star Wars books better.',
+  "It's okay, not much to it. Helpful if you're just getting into the field. I thought it would have more to it, nothing you wouldn't already know having done the job for a few months."],
+ 'review_title': ['Great',
+  'Stories were disappointing',
+  'Very basic, quick read'],
+ 'language': ['en', 'en', 'en'],
+ 'product_category': ['book', 'book', 'book']}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Okay, now that we have our corpus of book reviews, let's do one last bit of data preparation: creating label mappings from star ratings to human readable strings.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Mapping-the-labels">
+<a class="anchor" href="#Mapping-the-labels" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mapping the labels<a class="anchor-link" href="#Mapping-the-labels"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>During training, 🤗 Transformers expects the labels to be ordered, starting from 0 to N. But we've seen that our star ratings range from 1-5, so let's fix that. While we're at it, we'll create a mapping between the label IDs and names, which will be handy later on when we want to run inference with our model. First we'll define the label mapping from ID to name:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">label_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"terrible"</span><span class="p">,</span> <span class="s2">"poor"</span><span class="p">,</span> <span class="s2">"ok"</span><span class="p">,</span> <span class="s2">"good"</span><span class="p">,</span> <span class="s2">"great"</span><span class="p">]</span>
+<span class="n">id2label</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span><span class="n">label</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">label_names</span><span class="p">)}</span>
+<span class="n">id2label</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{0: 'terrible', 1: 'poor', 2: 'ok', 3: 'good', 4: 'great'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can then apply this mapping to our whole dataset by using the <code>Dataset.map()</code> method. Similar to the <code>Dataset.filter()</code> method, this one expects a function which receives examples as input, but returns a Python dictionary as output. The keys of the dictionary correspond to the columns, while the values correspond to the column entries. The following function creates two new columns:</p>
+<ul>
+<li>A <code>labels</code> column which is the star rating shifted down by one</li>
+<li>A <code>label_name</code> column which provides a nice string for each rating</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">map_labels</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
+    <span class="c1"># Shift labels to start from 0</span>
+    <span class="n">label_id</span> <span class="o">=</span> <span class="n">example</span><span class="p">[</span><span class="s2">"stars"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"labels"</span><span class="p">:</span> <span class="n">label_id</span><span class="p">,</span> <span class="s2">"label_name"</span><span class="p">:</span> <span class="n">id2label</span><span class="p">[</span><span class="n">label_id</span><span class="p">]}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To apply this mapping, we simply feed it to <code>Dataset.map</code> as follows:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">product_dataset</span> <span class="o">=</span> <span class="n">product_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">map_labels</span><span class="p">)</span>
+<span class="c1"># Peek at the first example</span>
+<span class="n">product_dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-e66ae284832f0d74.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-fc92ff2900ec00ab.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-7d9eead07d1d9e97.arrow
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'product_id': 'product_en_0447174',
+ 'review_title': 'Failure to send book',
+ 'product_category': 'book',
+ 'labels': 0,
+ 'label_name': 'terrible',
+ 'stars': 1,
+ 'review_body': 'I ordered this book on February 11. It never arrived.',
+ 'review_id': 'en_0369494',
+ 'reviewer_id': 'reviewer_en_0879303',
+ 'language': 'en'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Great, it works! We'll also need the reverse label mapping later, so let's define it here:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">label2id</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">id2label</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="From-text-to-tokens">
+<a class="anchor" href="#From-text-to-tokens" aria-hidden="true"><span class="octicon octicon-link"></span></a>From text to tokens<a class="anchor-link" href="#From-text-to-tokens"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Like other machine learning models, Transformers expect their inputs in the form of numbers (not strings) and so some form of preprocessing is required. For NLP, this preprocessing step is called <em>tokenization</em>. Tokenization converts strings into atomic chunks called tokens, and these tokens are subsequently encoded as numerical vectors.</p>
+<p>For more information about tokenizers, check out the following video:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">YouTubeVideo</span><span class="p">(</span><span class="s2">"VFp38yj8h3A"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="600" height="400" src="https://www.youtube.com/embed/VFp38yj8h3A" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Each pretrained model comes with its own tokenizer, so to get started let's download the tokenizer of XLM-RoBERTa from the Hub:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
+
+<span class="n">model_checkpoint</span> <span class="o">=</span> <span class="s2">"xlm-roberta-base"</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_checkpoint</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The tokenizer has a few interesting attributes such as the vocabulary size:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab_size</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>250002</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This tells us that XLM-R has 250,002 tokens that is can use to represent text with. Some of the tokens are called <em>special tokens</em> to indicate whether a token is the start or end of a sentence, or corresponds to the mask that is associated with language modeling. Here's what the special tokens look like for XLM-R:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokenizer</span><span class="o">.</span><span class="n">special_tokens_map</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'bos_token': '&lt;s&gt;',
+ 'eos_token': '&lt;/s&gt;',
+ 'unk_token': '&lt;unk&gt;',
+ 'sep_token': '&lt;/s&gt;',
+ 'pad_token': '&lt;pad&gt;',
+ 'cls_token': '&lt;s&gt;',
+ 'mask_token': '&lt;mask&gt;'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When you feed strings to the tokenizer, you'll get at least two fields (some models have more, depending on how they're trained):</p>
+<ul>
+<li>
+<code>input_ids</code>: These correspond to the numerical encodings that map each token to an integer</li>
+<li>
+<code>attention_mask</code>: This indicates to the model which tokens should be ignored when computing self-attention</li>
+</ul>
+<p>Let's see how this works with a simple example. First we encode the string:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">encoded_str</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="s2">"Today I'm giving an NLP workshop at MLT"</span><span class="p">)</span>
+<span class="n">encoded_str</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'input_ids': [0, 38396, 87, 25, 39, 68772, 142, 541, 37352, 42819, 99, 276, 27026, 2], 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>and then decode the input IDs to see the mapping explicitly:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">encoded_str</span><span class="p">[</span><span class="s2">"input_ids"</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">([</span><span class="n">token</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>0 &lt;s&gt;
+38396 Today
+87 I
+25 '
+39 m
+68772 giving
+142 an
+541 N
+37352 LP
+42819 workshop
+99 at
+276 M
+27026 LT
+2 &lt;/s&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So to prepare our inputs, we simply need to apply the tokenizer to each example in our corpus. As before, we'll do this with <code>Dataset.map()</code> so let's write a simple function to do so:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">tokenize_reviews</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="s2">"review_body"</span><span class="p">],</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">180</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here we've enabled truncation, so the tokenizer will cut any inputs that are longer than 180 tokens (which is the setting used in the MARC paper). With this function we can go ahead and tokenize the whole corpus:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokenized_dataset</span> <span class="o">=</span> <span class="n">product_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_reviews</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">tokenized_dataset</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-363fa7988db6e876.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/en/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-253bfa8699379ce8.arrow
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>DatasetDict({
+    train: Dataset({
+        features: ['attention_mask', 'input_ids', 'label_name', 'labels', 'language', 'product_category', 'product_id', 'review_body', 'review_id', 'review_title', 'reviewer_id', 'stars'],
+        num_rows: 3756
+    })
+    validation: Dataset({
+        features: ['attention_mask', 'input_ids', 'label_name', 'labels', 'language', 'product_category', 'product_id', 'review_body', 'review_id', 'review_title', 'reviewer_id', 'stars'],
+        num_rows: 82
+    })
+    test: Dataset({
+        features: ['attention_mask', 'input_ids', 'label_name', 'labels', 'language', 'product_category', 'product_id', 'review_body', 'review_id', 'review_title', 'reviewer_id', 'stars'],
+        num_rows: 105
+    })
+})</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokenized_dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'product_id': 'product_en_0447174',
+ 'review_title': 'Failure to send book',
+ 'input_ids': [0,
+  87,
+  12989,
+  297,
+  903,
+  12877,
+  98,
+  22482,
+  4541,
+  1650,
+  8306,
+  174920,
+  5,
+  2],
+ 'product_category': 'book',
+ 'labels': 0,
+ 'attention_mask': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+ 'label_name': 'terrible',
+ 'stars': 1,
+ 'review_body': 'I ordered this book on February 11. It never arrived.',
+ 'review_id': 'en_0369494',
+ 'reviewer_id': 'reviewer_en_0879303',
+ 'language': 'en'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This looks good, so now let's load a pretrained model!</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loading-a-pretrained-model">
+<a class="anchor" href="#Loading-a-pretrained-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Loading a pretrained model<a class="anchor-link" href="#Loading-a-pretrained-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To load a pretrained model from the Hub is quite simple: just select the appropriate <code>AutoModelForXxx</code> class and use the <code>from_pretrained()</code> function with the model checkpoint. In our case, we're dealing with 5 classes (one for each star) so to initialise the model we'll provide this information along with the label mappings:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModelForSequenceClassification</span>
+
+<span class="n">num_labels</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_checkpoint</span><span class="p">,</span> <span class="n">num_labels</span><span class="o">=</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">label2id</span><span class="o">=</span><span class="n">label2id</span><span class="p">,</span> <span class="n">id2label</span><span class="o">=</span><span class="n">id2label</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Some weights of the model checkpoint at xlm-roberta-base were not used when initializing XLMRobertaForSequenceClassification: ['lm_head.dense.bias', 'lm_head.bias', 'roberta.pooler.dense.weight', 'roberta.pooler.dense.bias', 'lm_head.decoder.weight', 'lm_head.layer_norm.bias', 'lm_head.layer_norm.weight', 'lm_head.dense.weight']
+- This IS expected if you are initializing XLMRobertaForSequenceClassification from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing XLMRobertaForSequenceClassification from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Some weights of XLMRobertaForSequenceClassification were not initialized from the model checkpoint at xlm-roberta-base and are newly initialized: ['classifier.dense.weight', 'classifier.out_proj.bias', 'classifier.out_proj.weight', 'classifier.dense.bias']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These warnings are perfectly normal - they are telling us that the weights in the head of the network are randomly initialised and so we should fine-tune the model on a downstream task.</p>
+<p>Now that we have a model, the next step is to initialise a <code>Trainer</code> that will take care of the training loop for us. Let's do that next.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Creating-a-Trainer">
+<a class="anchor" href="#Creating-a-Trainer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a Trainer<a class="anchor-link" href="#Creating-a-Trainer"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To create a <code>Trainer</code>, we usually need a few basic ingredients:</p>
+<ul>
+<li>A <code>TrainingArguments</code> class to define all the hyperparameters</li>
+<li>A <code>compute_metrics</code> function to compute metrics during evaluation</li>
+<li>Datasets to train and evaluate on</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For more information about the <code>Trainer</code> check out the following video:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">YouTubeVideo</span><span class="p">(</span><span class="s2">"nvBXf7s7vTI"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="600" height="400" src="https://www.youtube.com/embed/nvBXf7s7vTI" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's start with the <code>TrainingArguments</code>:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">TrainingArguments</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="n">model_checkpoint</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">num_train_epochs</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">logging_steps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokenized_dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">])</span> <span class="o">//</span> <span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_train_epochs</span><span class="p">)</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">-finetuned-marc-en"</span><span class="p">,</span>
+    <span class="n">evaluation_strategy</span> <span class="o">=</span> <span class="s2">"epoch"</span><span class="p">,</span>
+    <span class="n">save_strategy</span> <span class="o">=</span> <span class="s2">"epoch"</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+    <span class="n">num_train_epochs</span><span class="o">=</span><span class="n">num_train_epochs</span><span class="p">,</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">logging_steps</span><span class="o">=</span><span class="n">logging_steps</span><span class="p">,</span>
+    <span class="n">push_to_hub</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here we've defined <code>output_dir</code> to save our checkpoints and tweaked some of the default hyperparameters like the learning rate and weight decay. The <code>push_to_hub</code> argument will push each checkpoint to the Hub automatically for us, so we can reuse the model at any point in the future!</p>
+<p>Now that we've defined the hyperparameters, the next step is to define the metrics. In the MARC paper, the authors point out that one should use the mean absolute error (MAE) for star ratings because:</p>
+<blockquote>
+<p>star ratings for each review are ordinal, and a 2-star prediction for a 5-star review should be penalized more heavily than a 4-star prediction for a 5-star review.</p>
+</blockquote>
+<p>We'll take the same approach here and we can get the metric easily from Scikit-learn as follows:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+<span class="k">def</span> <span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_pred</span><span class="p">):</span>
+    <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_pred</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"MAE"</span><span class="p">:</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With these ingredients we can now instantiate a <code>Trainer</code>:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Trainer</span> 
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized_dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">],</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_dataset</span><span class="p">[</span><span class="s2">"validation"</span><span class="p">],</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/home/lewis/git/workshops/machine-learning-tokyo/xlm-roberta-base-finetuned-marc-en is already a clone of https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en. Make sure you pull the latest changes with `repo.git_pull()`.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that here we've also provided the tokenizer to the <code>Trainer</code>: doing so will ensure that all of our examples are automatically padded to the longest example in each batch. This is needed so that matrix operations in the forward pass of the model can be computed.</p>
+<p>With our <code>Trainer</code>, it is then a simple matter to train the model:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>The following columns in the training set  don't have a corresponding argument in `XLMRobertaForSequenceClassification.forward` and have been ignored: product_id, review_title, label_name, stars, review_body, review_id, reviewer_id, language, product_category.
+***** Running training *****
+  Num examples = 3756
+  Num Epochs = 2
+  Instantaneous batch size per device = 16
+  Total train batch size (w. parallel, distributed &amp; accumulation) = 16
+  Gradient Accumulation steps = 1
+  Total optimization steps = 470
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+
+    <div>
+      
+      <progress value="470" max="470" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      [470/470 01:51, Epoch 2/2]
+    </div>
+    <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: left;">
+      <th>Epoch</th>
+      <th>Training Loss</th>
+      <th>Validation Loss</th>
+      <th>Mae</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>1.158900</td>
+      <td>0.976875</td>
+      <td>0.512195</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.974000</td>
+      <td>0.884956</td>
+      <td>0.439024</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+&lt;/div&gt;
+
+&lt;/div&gt;
+
+</p>
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>The following columns in the evaluation set  don't have a corresponding argument in `XLMRobertaForSequenceClassification.forward` and have been ignored: product_id, review_title, label_name, stars, review_body, review_id, reviewer_id, language, product_category.
+***** Running Evaluation *****
+  Num examples = 82
+  Batch size = 16
+Saving model checkpoint to xlm-roberta-base-finetuned-marc-en/checkpoint-235
+Configuration saved in xlm-roberta-base-finetuned-marc-en/checkpoint-235/config.json
+Model weights saved in xlm-roberta-base-finetuned-marc-en/checkpoint-235/pytorch_model.bin
+tokenizer config file saved in xlm-roberta-base-finetuned-marc-en/checkpoint-235/tokenizer_config.json
+Special tokens file saved in xlm-roberta-base-finetuned-marc-en/checkpoint-235/special_tokens_map.json
+tokenizer config file saved in xlm-roberta-base-finetuned-marc-en/tokenizer_config.json
+Special tokens file saved in xlm-roberta-base-finetuned-marc-en/special_tokens_map.json
+The following columns in the evaluation set  don't have a corresponding argument in `XLMRobertaForSequenceClassification.forward` and have been ignored: product_id, review_title, label_name, stars, review_body, review_id, reviewer_id, language, product_category.
+***** Running Evaluation *****
+  Num examples = 82
+  Batch size = 16
+Saving model checkpoint to xlm-roberta-base-finetuned-marc-en/checkpoint-470
+Configuration saved in xlm-roberta-base-finetuned-marc-en/checkpoint-470/config.json
+Model weights saved in xlm-roberta-base-finetuned-marc-en/checkpoint-470/pytorch_model.bin
+tokenizer config file saved in xlm-roberta-base-finetuned-marc-en/checkpoint-470/tokenizer_config.json
+Special tokens file saved in xlm-roberta-base-finetuned-marc-en/checkpoint-470/special_tokens_map.json
+
+
+Training completed. Do not forget to share your model on huggingface.co/models =)
+
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>TrainOutput(global_step=470, training_loss=1.1532732900152816, metrics={'train_runtime': 114.0968, 'train_samples_per_second': 65.839, 'train_steps_per_second': 4.119, 'total_flos': 503752017410256.0, 'train_loss': 1.1532732900152816, 'epoch': 2.0})</pre>
+</div>
+
+</div>
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;/div&gt;
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Nice, with just a few mintues of training, we've managed to halve our error compared to the zero-shot baseline! After training is complete, we can push the commits to our repository on the Hub:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">trainer</span><span class="o">.</span><span class="n">push_to_hub</span><span class="p">(</span><span class="n">commit_message</span><span class="o">=</span><span class="s2">"Training complete!"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Saving model checkpoint to xlm-roberta-base-finetuned-marc-en
+Configuration saved in xlm-roberta-base-finetuned-marc-en/config.json
+Model weights saved in xlm-roberta-base-finetuned-marc-en/pytorch_model.bin
+tokenizer config file saved in xlm-roberta-base-finetuned-marc-en/tokenizer_config.json
+Special tokens file saved in xlm-roberta-base-finetuned-marc-en/special_tokens_map.json
+To https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en
+   46101cc..ed25dda  main -&gt; main
+
+Dropping the following result as it does not have all the necessary field:
+{'task': {'name': 'Text Classification', 'type': 'text-classification'}, 'dataset': {'name': 'amazon_reviews_multi', 'type': 'amazon_reviews_multi', 'args': 'en'}}
+To https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en
+   ed25dda..4edf98b  main -&gt; main
+
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/commit/ed25ddabff2ca185be2c7bd610b003858058c749'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Evaluating-cross-lingual-transfer">
+<a class="anchor" href="#Evaluating-cross-lingual-transfer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Evaluating cross-lingual transfer<a class="anchor-link" href="#Evaluating-cross-lingual-transfer"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we're fine-tuned our model on a English subset, we can evaluate its ability to transfer to other languages. To do so, we'll load the validation set in a given language, apply the same filtering and preprocessing that we did for the English subset, and finally use <code>Trainer.evaluate()</code> to compute the metrics. The following function does the trick:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">evaluate_corpus</span><span class="p">(</span><span class="n">lang</span><span class="p">):</span>
+    <span class="c1"># Load the language subset</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"validation"</span><span class="p">)</span>
+    <span class="c1"># Filter for the `sports` product category</span>
+    <span class="n">product_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">filter_for_product</span><span class="p">)</span>
+    <span class="c1"># Map and create label columns</span>
+    <span class="n">product_dataset</span> <span class="o">=</span> <span class="n">product_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">map_labels</span><span class="p">)</span>
+    <span class="c1"># Tokenize the inputs</span>
+    <span class="n">tokenized_dataset</span> <span class="o">=</span> <span class="n">product_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_reviews</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Generate predictions and metrics</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized_dataset</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"MAE"</span><span class="p">:</span> <span class="n">preds</span><span class="p">[</span><span class="s2">"eval_MAE"</span><span class="p">]}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's start with English (for reference our MAE on English was around 0.5):</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">evaluate_corpus</span><span class="p">(</span><span class="s2">"fr"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Reusing dataset amazon_reviews_multi (/data/.cache/hf/datasets/amazon_reviews_multi/fr/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609)
+The following columns in the evaluation set  don't have a corresponding argument in `XLMRobertaForSequenceClassification.forward` and have been ignored: product_id, review_title, label_name, stars, review_body, review_id, reviewer_id, language, product_category.
+***** Running Evaluation *****
+  Num examples = 215
+  Batch size = 16
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'MAE': 0.5767441860465117}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Not bad! Our fine-tuned English model is able to transfer to English at roughly the same performance. How about French?</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">evaluate_corpus</span><span class="p">(</span><span class="s2">"ja"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Reusing dataset amazon_reviews_multi (/data/.cache/hf/datasets/amazon_reviews_multi/ja/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609)
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/ja/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-a0b282f870bb7c27.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/ja/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-f5ab579eace2ea64.arrow
+Loading cached processed dataset at /data/.cache/hf/datasets/amazon_reviews_multi/ja/1.0.0/724e94f4b0c6c405ce7e476a6c5ef4f87db30799ad49f765094cf9770e0f7609/cache-e0443037d9ae83f1.arrow
+The following columns in the evaluation set  don't have a corresponding argument in `XLMRobertaForSequenceClassification.forward` and have been ignored: product_id, review_title, label_name, stars, review_body, review_id, reviewer_id, language, product_category.
+***** Running Evaluation *****
+  Num examples = 121
+  Batch size = 16
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'MAE': 0.6776859504132231}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Nice, this is very similar too! This shows the great power of multilingual models - provided your target language was included in the pretraining, there's a good chance you'll only need to tune and deploy a single model in production instead of running one per language.</p>
+<p>This wraps up our training and evaluation step - one last thing to try is seeing how we can interact with our model in a <code>pipeline</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Using-your-fine-tuned-model">
+<a class="anchor" href="#Using-your-fine-tuned-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using your fine-tuned model<a class="anchor-link" href="#Using-your-fine-tuned-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span> 
+
+<span class="n">finetuned_checkpoint</span> <span class="o">=</span> <span class="s2">"lewtun/xlm-roberta-base-finetuned-marc-en"</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">"text-classification"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">finetuned_checkpoint</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/config.json not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmp4f5bal43
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/config.json in cache at /data/.cache/hf/transformers/037d460e3f122274751f63b09da897e8132529bdefe7de21b0fb1ad299d308b8.2b84791fe464e01eeffac0776c6630b7f5c8a4aa14a39ee1292d706acb9346f2
+creating metadata file for /data/.cache/hf/transformers/037d460e3f122274751f63b09da897e8132529bdefe7de21b0fb1ad299d308b8.2b84791fe464e01eeffac0776c6630b7f5c8a4aa14a39ee1292d706acb9346f2
+loading configuration file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/config.json from cache at /data/.cache/hf/transformers/037d460e3f122274751f63b09da897e8132529bdefe7de21b0fb1ad299d308b8.2b84791fe464e01eeffac0776c6630b7f5c8a4aa14a39ee1292d706acb9346f2
+Model config XLMRobertaConfig {
+  "_name_or_path": "xlm-roberta-base",
+  "architectures": [
+    "XLMRobertaForSequenceClassification"
+  ],
+  "attention_probs_dropout_prob": 0.1,
+  "bos_token_id": 0,
+  "classifier_dropout": null,
+  "eos_token_id": 2,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.1,
+  "hidden_size": 768,
+  "id2label": {
+    "0": "terrible",
+    "1": "poor",
+    "2": "ok",
+    "3": "good",
+    "4": "great"
+  },
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "label2id": {
+    "good": 3,
+    "great": 4,
+    "ok": 2,
+    "poor": 1,
+    "terrible": 0
+  },
+  "layer_norm_eps": 1e-05,
+  "max_position_embeddings": 514,
+  "model_type": "xlm-roberta",
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "output_past": true,
+  "pad_token_id": 1,
+  "position_embedding_type": "absolute",
+  "problem_type": "single_label_classification",
+  "torch_dtype": "float32",
+  "transformers_version": "4.11.3",
+  "type_vocab_size": 1,
+  "use_cache": true,
+  "vocab_size": 250002
+}
+
+loading configuration file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/config.json from cache at /data/.cache/hf/transformers/037d460e3f122274751f63b09da897e8132529bdefe7de21b0fb1ad299d308b8.2b84791fe464e01eeffac0776c6630b7f5c8a4aa14a39ee1292d706acb9346f2
+Model config XLMRobertaConfig {
+  "_name_or_path": "xlm-roberta-base",
+  "architectures": [
+    "XLMRobertaForSequenceClassification"
+  ],
+  "attention_probs_dropout_prob": 0.1,
+  "bos_token_id": 0,
+  "classifier_dropout": null,
+  "eos_token_id": 2,
+  "hidden_act": "gelu",
+  "hidden_dropout_prob": 0.1,
+  "hidden_size": 768,
+  "id2label": {
+    "0": "terrible",
+    "1": "poor",
+    "2": "ok",
+    "3": "good",
+    "4": "great"
+  },
+  "initializer_range": 0.02,
+  "intermediate_size": 3072,
+  "label2id": {
+    "good": 3,
+    "great": 4,
+    "ok": 2,
+    "poor": 1,
+    "terrible": 0
+  },
+  "layer_norm_eps": 1e-05,
+  "max_position_embeddings": 514,
+  "model_type": "xlm-roberta",
+  "num_attention_heads": 12,
+  "num_hidden_layers": 12,
+  "output_past": true,
+  "pad_token_id": 1,
+  "position_embedding_type": "absolute",
+  "problem_type": "single_label_classification",
+  "torch_dtype": "float32",
+  "transformers_version": "4.11.3",
+  "type_vocab_size": 1,
+  "use_cache": true,
+  "vocab_size": 250002
+}
+
+https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/pytorch_model.bin not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmp088fbra6
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/pytorch_model.bin in cache at /data/.cache/hf/transformers/c97412612696ce55e0c33d534b536ef0c913cbac8cac07f99c987b28ec005e23.793434c46167441b5d28ce8d9d3cb67723caadee7fb7b0d41cfd5e4147cb2748
+creating metadata file for /data/.cache/hf/transformers/c97412612696ce55e0c33d534b536ef0c913cbac8cac07f99c987b28ec005e23.793434c46167441b5d28ce8d9d3cb67723caadee7fb7b0d41cfd5e4147cb2748
+loading weights file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/pytorch_model.bin from cache at /data/.cache/hf/transformers/c97412612696ce55e0c33d534b536ef0c913cbac8cac07f99c987b28ec005e23.793434c46167441b5d28ce8d9d3cb67723caadee7fb7b0d41cfd5e4147cb2748
+All model checkpoint weights were used when initializing XLMRobertaForSequenceClassification.
+
+All the weights of XLMRobertaForSequenceClassification were initialized from the model checkpoint at lewtun/xlm-roberta-base-finetuned-marc-en.
+If your task is similar to the task the model of the checkpoint was trained on, you can already use XLMRobertaForSequenceClassification for predictions without further training.
+https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer_config.json not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmpkf19svra
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer_config.json in cache at /data/.cache/hf/transformers/3384f362cedf6ef145b43b1b52d70d29c95a4f67e83a66d66ec230f7a21e9b10.b36482fbec4a714d3cfec99e0b05f4fdeec9e759090a78aed5597583a8b4783d
+creating metadata file for /data/.cache/hf/transformers/3384f362cedf6ef145b43b1b52d70d29c95a4f67e83a66d66ec230f7a21e9b10.b36482fbec4a714d3cfec99e0b05f4fdeec9e759090a78aed5597583a8b4783d
+https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/sentencepiece.bpe.model not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmpxiipp0to
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/sentencepiece.bpe.model in cache at /data/.cache/hf/transformers/8829ed2a3689d2958f997a76316030f4eabc8862fc37e950c0edf01093c6b2b2.71e50b08dbe7e5375398e165096cacc3d2086119d6a449364490da6908de655e
+creating metadata file for /data/.cache/hf/transformers/8829ed2a3689d2958f997a76316030f4eabc8862fc37e950c0edf01093c6b2b2.71e50b08dbe7e5375398e165096cacc3d2086119d6a449364490da6908de655e
+https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer.json not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmpxcv2nh7o
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer.json in cache at /data/.cache/hf/transformers/9a5e2f33f5c3c3f16829f9c1db471f77b971568661178e86b44ce063ee371908.f00bf26b5c5328dc3c4844eb99c23392a32b9c4358d1144a6d617efbc1403e11
+creating metadata file for /data/.cache/hf/transformers/9a5e2f33f5c3c3f16829f9c1db471f77b971568661178e86b44ce063ee371908.f00bf26b5c5328dc3c4844eb99c23392a32b9c4358d1144a6d617efbc1403e11
+https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/special_tokens_map.json not found in cache or force_download set to True, downloading to /data/.cache/hf/transformers/tmplqvwxret
+storing https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/special_tokens_map.json in cache at /data/.cache/hf/transformers/28b7ae4c7f7a27813bc8966d3f9348c06d36b33eced58906798205ac0ed4bced.a11ebb04664c067c8fe5ef8f8068b0f721263414a26058692f7b2e4ba2a1b342
+creating metadata file for /data/.cache/hf/transformers/28b7ae4c7f7a27813bc8966d3f9348c06d36b33eced58906798205ac0ed4bced.a11ebb04664c067c8fe5ef8f8068b0f721263414a26058692f7b2e4ba2a1b342
+loading file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/sentencepiece.bpe.model from cache at /data/.cache/hf/transformers/8829ed2a3689d2958f997a76316030f4eabc8862fc37e950c0edf01093c6b2b2.71e50b08dbe7e5375398e165096cacc3d2086119d6a449364490da6908de655e
+loading file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer.json from cache at /data/.cache/hf/transformers/9a5e2f33f5c3c3f16829f9c1db471f77b971568661178e86b44ce063ee371908.f00bf26b5c5328dc3c4844eb99c23392a32b9c4358d1144a6d617efbc1403e11
+loading file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/added_tokens.json from cache at None
+loading file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/special_tokens_map.json from cache at /data/.cache/hf/transformers/28b7ae4c7f7a27813bc8966d3f9348c06d36b33eced58906798205ac0ed4bced.a11ebb04664c067c8fe5ef8f8068b0f721263414a26058692f7b2e4ba2a1b342
+loading file https://huggingface.co/lewtun/xlm-roberta-base-finetuned-marc-en/resolve/main/tokenizer_config.json from cache at /data/.cache/hf/transformers/3384f362cedf6ef145b43b1b52d70d29c95a4f67e83a66d66ec230f7a21e9b10.b36482fbec4a714d3cfec99e0b05f4fdeec9e759090a78aed5597583a8b4783d
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">classifier</span><span class="p">(</span><span class="s2">"I loved reading the Hunger Games!"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[{'label': 'great', 'score': 0.8203269839286804}]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">classifier</span><span class="p">(</span><span class="s2">"ハンガーゲーム」を読むのが好きだった!"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[{'label': 'good', 'score': 0.5864875912666321}]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+&lt;/div&gt;
+ 
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="girijeshcse/scribble"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/scribble/jupyter/2021/10/28/text-classification.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/scribble/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/scribble/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/scribble/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A place to explore and rewrite my technical voyage.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/girijeshcse" title="girijeshcse"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/girijesh_" title="girijesh_"><svg class="svg-icon grey"><use xlink:href="/scribble/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
